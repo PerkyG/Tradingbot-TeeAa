@@ -1,6 +1,10 @@
 // api/trading-journal.js
 import { Client } from '@notionhq/client';
 
+// Debug logging
+console.log('Token starts with:', process.env.NOTION_TOKEN?.substring(0, 4));
+console.log('Database ID length:', process.env.NOTION_DATABASE_ID?.length);
+
 const notion = new Client({
   auth: process.env.NOTION_TOKEN,
 });
@@ -15,6 +19,13 @@ export default async function handler(req, res) {
 
   try {
     const { question, answer, mood, time, market_session, tags } = req.body;
+
+    // Debug environment variables
+    console.log('Environment check:', {
+      hasToken: !!process.env.NOTION_TOKEN,
+      hasDatabase: !!process.env.NOTION_DATABASE_ID,
+      tokenStart: process.env.NOTION_TOKEN?.substring(0, 4)
+    });
 
     // Validatie van required fields
     if (!question || !answer) {
