@@ -48,57 +48,60 @@ export default async function handler(req, res) {
         database_id: DATABASE_ID,
       },
       properties: {
-        // Title kolom (automatisch gegenereerd met timestamp)
-        Name: {
-          title: [
+        // Title kolom - simpelere syntax
+        "Name": {
+          "title": [
             {
-              text: {
-                content: `Entry ${new Date().toISOString().split('T')[0]}`,
-              },
-            },
-          ],
+              "text": {
+                "content": `Trading Entry ${new Date().toLocaleDateString()}`
+              }
+            }
+          ]
         },
-        Question: {
-          rich_text: [
+        "Question": {
+          "rich_text": [
             {
-              text: {
-                content: question,
-              },
-            },
-          ],
+              "text": {
+                "content": question
+              }
+            }
+          ]
         },
-        Answer: {
-          rich_text: [
+        "Answer": {
+          "rich_text": [
             {
-              text: {
-                content: answer,
-              },
-            },
-          ],
+              "text": {
+                "content": answer
+              }
+            }
+          ]
         },
-        Date: {
-          date: {
-            start: new Date().toISOString().split('T')[0],
-          },
+        "Date": {
+          "date": {
+            "start": new Date().toISOString().split('T')[0]
+          }
         },
-        Time: time ? {
-          select: {
-            name: time, // Morning, Afternoon, Evening
-          },
-        } : null,
-        Mood: mood ? {
-          select: {
-            name: mood.toString(), // 1, 2, 3, 4, 5
-          },
-        } : null,
-        Market_Session: market_session ? {
-          select: {
-            name: market_session, // Pre-market, Market, After-hours
-          },
-        } : null,
-        Tags: tags && tags.length > 0 ? {
-          multi_select: tags.map(tag => ({ name: tag })),
-        } : null,
+        ...(time && {
+          "Time": {
+            "select": {
+              "name": time
+            }
+          }
+        }),
+        ...(mood && {
+          "Mood": {
+            "select": {
+              "name": mood.toString()
+            }
+          }
+        }),
+        ...(market_session && {
+          "Market_Session": {
+            "select": {
+              "name": market_session
+            }
+          }
+        })
       },
     });
 
