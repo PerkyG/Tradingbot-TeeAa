@@ -95,6 +95,9 @@ async function handleAnswer(chatId, answer, userId) {
     return;
   }
 
+  console.log('Processing answer:', answer);
+  console.log('API_URL:', API_URL);
+
   try {
     // Determine time of day
     const hour = new Date().getHours();
@@ -105,6 +108,12 @@ async function handleAnswer(chatId, answer, userId) {
     // Get appropriate question based on time
     const currentQuestion = getCurrentQuestion(timeOfDay);
 
+    console.log('Sending to API:', {
+      question: currentQuestion,
+      answer: answer,
+      time: capitalize(timeOfDay)
+    });
+
     // Send to Notion API
     const response = await fetch(`${API_URL}/api/trading-journal`, {
       method: 'POST',
@@ -114,11 +123,15 @@ async function handleAnswer(chatId, answer, userId) {
       body: JSON.stringify({
         question: currentQuestion,
         answer: answer,
-        mood: null, // We can ask for mood later
+        mood: null,
         time: capitalize(timeOfDay),
         market_session: getMarketSession()
       })
     });
+
+    console.log('API response status:', response.status);
+    const responseData = await response.json();
+    console.log('API response data:', responseData);
 
     if (response.ok) {
       await sendMessage(chatId, 
@@ -126,13 +139,13 @@ async function handleAnswer(chatId, answer, userId) {
         "🔥 Keep it up! Consistent journaling verbetert je trading performance."
       );
     } else {
-      throw new Error('API call failed');
+      throw new Error(`API returned ${response.status}: ${responseData.error || 'Unknown error'}`);
     }
 
   } catch (error) {
     console.error('Error saving to Notion:', error);
     await sendMessage(chatId, 
-      "❌ Er ging iets mis bij het opslaan. Probeer het later nog eens.\n" +
+      "❌ Er ging iets mis bij het opslaan: " + error.message + "\n" +
       "Je antwoord was: " + answer.substring(0, 100) + "..."
     );
   }
