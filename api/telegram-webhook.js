@@ -60,7 +60,7 @@ async function askQuestion(chatId, timeOfDay) {
   const questions = {
     morning: [
       "🌅 Wat zijn je trading doelen voor vandaag?",
-      "📊 Welke markten ga je vandaag volgen?",
+      "📊 Welke markten ga je vandaag volgen?", 
       "💡 Wat is je strategie voor vandaag?"
     ],
     afternoon: [
@@ -78,18 +78,11 @@ async function askQuestion(chatId, timeOfDay) {
   const questionList = questions[timeOfDay];
   const randomQuestion = questionList[Math.floor(Math.random() * questionList.length)];
   
-  // Store the question context for when user answers
-  const contextMessage = `Context: ${timeOfDay}_question`;
-  
-  await sendMessage(chatId, randomQuestion);
-  
-  // Send a follow-up message to set context
-  setTimeout(async () => {
-    await sendMessage(chatId, 
-      "💬 Typ je antwoord en ik sla het op in je Notion database!\n" +
-      "(Of typ /help voor meer opties)"
-    );
-  }, 1000);
+  // Send question with instruction in one message
+  await sendMessage(chatId, 
+    randomQuestion + "\n\n" +
+    "💬 Typ je antwoord hieronder - ik sla het automatisch op in je Notion database!"
+  );
 }
 
 async function handleAnswer(chatId, answer, userId) {
