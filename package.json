@@ -1,0 +1,9 @@
+{
+  "name": "trading-journal-api",
+  "version": "1.0.0",
+  "description": "API for trading journal Telegram bot",
+  "main": "index.js",
+  "dependencies": {
+    "@notionhq/client": "^2.2.15"
+  }
+}
