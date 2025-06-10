@@ -12,9 +12,17 @@ const notion = new Client({
 const DATABASE_ID = process.env.NOTION_DATABASE_ID;
 
 export default async function handler(req, res) {
+  // Debug method
+  console.log('Request method:', req.method);
+  console.log('Request headers:', req.headers);
+  
   // Alleen POST requests accepteren
   if (req.method !== 'POST') {
-    return res.status(405).json({ error: 'Method not allowed' });
+    return res.status(405).json({ 
+      error: 'Method not allowed', 
+      received: req.method,
+      expected: 'POST'
+    });
   }
 
   try {
