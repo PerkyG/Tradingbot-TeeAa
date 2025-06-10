@@ -122,10 +122,8 @@ async function handleAnswer(chatId, answer, userId) {
       },
       body: JSON.stringify({
         question: currentQuestion,
-        answer: answer,
-        mood: null,
-        time: capitalize(timeOfDay),
-        market_session: getMarketSession()
+        answer: answer
+        // Tijdelijk alleen question en answer - geen mood/time/market_session
       })
     });
 
