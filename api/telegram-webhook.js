@@ -1,6 +1,6 @@
 // api/telegram-webhook.js
 const BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN;
-const API_URL = process.env.VERCEL_URL || 'https://tradingbot-tee-aa.vercel.app';
+const API_URL = 'https://tradingbot-tee-aa.vercel.app';
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
