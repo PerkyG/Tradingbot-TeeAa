@@ -47,29 +47,130 @@ const QUESTION_CATEGORIES = {
       }
     ]
   },
-  psychologie: {
-    name: "Psychologie",
+  marktanalyse: {
+    name: "Marktanalyse",
     questions: [
       {
-        question: "Ben je vandaag een leeuw die wacht op zijn prooi, of ren je achter alles aan?",
-        responses: ["Volledige leeuw", "Meestal geduldig", "Mix van beide", "Vaak jagen", "Altijd jagen"]
+        question: "Wat is de overall market strength en welke sectoren zijn sterk?",
+        responses: ["Duidelijk beeld", "Redelijk beeld", "Vaag beeld", "Geen duidelijkheid", "Tegengestelde signalen"]
       },
       {
-        question: "Hoe is je emotionele staat? Voel je je sloppy, moe of ontevreden?",
-        responses: ["Scherp en gefocust", "Goed", "Redelijk", "Matig", "Sloppy/moe/ontevreden"]
+        question: "Heb je de Best of Breed tickers geïdentificeerd?",
+        responses: ["Helder geïdentificeerd", "Redelijk idee", "Enkele kandidaten", "Onduidelijk", "Geen idee"]
+      },
+      {
+        question: "Begrijp je de markt sentiment en je relatie tot 'the herd'?",
+        responses: ["Volledig begrip", "Goed begrip", "Basis begrip", "Beperkt begrip", "Geen begrip"]
       }
     ]
   },
-  discipline: {
-    name: "Discipline",
+  strategie: {
+    name: "Strategie",
     questions: [
       {
-        question: "Heb je je vooraf bepaalde regels en entry criteria gevolgd?",
-        responses: ["Volledig gevolgd", "Grotendeels gevolgd", "Gedeeltelijk", "Afgeweken", "Totaal genegeerd"]
+        question: "Heb je je trading plan 'in steen gebeiteld' voordat je begon?",
+        responses: ["Plan in steen", "Duidelijk plan", "Globaal plan", "Vaag plan", "Geen plan"]
       },
       {
-        question: "Ben je gestopt na je target of heb je doorgegaan uit hebzucht?",
-        responses: ["Gestopt bij target", "1 extra trade", "Enkele extra", "Veel extra", "Compleet doorgegaan"]
+        question: "Speel je de trend of probeer je slimmer te zijn dan de markt?",
+        responses: ["Volledig trend volgen", "Meestal trend", "Mix", "Vaak tegen trend", "Altijd tegen trend"]
+      },
+      {
+        question: "Focus je op minder tickers (less is more) of spread je te veel?",
+        responses: ["Perfecte focus", "Goede focus", "Redelijke focus", "Te verspreid", "Veel te veel tickers"]
+      }
+    ]
+  },
+  performance: {
+    name: "Performance",
+    questions: [
+      {
+        question: "Wat waren je beste en slechteste trades vandaag?",
+        responses: ["Alleen A+ setups", "Goede trades", "Mix", "Enkele slechte", "Veel slechte trades"]
+      },
+      {
+        question: "Hoe was je risk management? Te groot, te klein, of precies goed?",
+        responses: ["Perfect gemanaged", "Goed gemanaged", "Redelijk", "Te groot geriskeert", "Roekeloos"]
+      },
+      {
+        question: "Heb je winnaars te vroeg gecut of verliezers te lang aangehouden?",
+        responses: ["Perfect timing", "Goed timing", "Redelijk timing", "Te vroeg gecut", "Te lang aangehouden"]
+      },
+      {
+        question: "Wat is je R-multiple vandaag? (totaal resultaat in R)",
+        responses: ["3R+", "1-3R", "0-1R", "0 tot -1R", "-1R of slechter"]
+      }
+    ]
+  },
+  risico: {
+    name: "Risico",
+    questions: [
+      {
+        question: "Heb je je maximum aantal trades per dag gerespecteerd?",
+        responses: ["Onder het maximum", "Precies het maximum", "1-2 over", "Significant over", "Veel te veel trades"]
+      },
+      {
+        question: "Was je positionering passend bij de markt volatiliteit?",
+        responses: ["Perfect passend", "Goed passend", "Redelijk", "Te groot voor volatiliteit", "Roekeloos groot"]
+      },
+      {
+        question: "Heb je events, numbers en wicks goed ingeschat?",
+        responses: ["Perfect ingeschat", "Goed ingeschat", "Redelijk", "Deels gemist", "Volledig verrast"]
+      }
+    ]
+  },
+  reflectie: {
+    name: "Reflectie",
+    questions: [
+      {
+        question: "Wat is de belangrijkste les die je vandaag hebt geleerd?",
+        responses: ["Belangrijke inzichten", "Nuttige lessen", "Enkele lessen", "Minimale lessen", "Geen lessen"]
+      },
+      {
+        question: "Welke trading gewoonte wil je morgen verbeteren?",
+        responses: ["Duidelijk verbeterpunt", "Enkele punten", "Vaag idee", "Geen specifiek punt", "Alles moet anders"]
+      },
+      {
+        question: "Ben je trots op je trading gedrag vandaag, los van het resultaat?",
+        responses: ["Zeer trots", "Trots", "Redelijk tevreden", "Ontevreden", "Zeer ontevreden"]
+      }
+    ]
+  },
+  persoonlijkeOntwikkeling: {
+    name: "Persoonlijke Ontwikkeling",
+    questions: [
+      {
+        question: "Heb je vandaag geleefd volgens je waarden? (dankbaar, betekenisvol, authentiek)",
+        responses: ["Volledig volgens waarden", "Grotendeels", "Deels", "Minimaal", "Niet volgens waarden"]
+      },
+      {
+        question: "Ben je vandaag 'tijd vergeten' door aandacht voor trading?",
+        responses: ["Volledig in flow", "Grotendeels gefocust", "Redelijk gefocust", "Vaak afgeleid", "Constant afgeleid"]
+      },
+      {
+        question: "Heb je balans gehouden tussen trading, family, gezondheid en huishouding?",
+        responses: ["Perfecte balans", "Goede balans", "Redelijke balans", "Uit balans", "Volledig uit balans"]
+      },
+      {
+        question: "Wat betekende trading vandaag voor anderen in je leven?",
+        responses: ["Positieve impact", "Neutrale impact", "Gemixte impact", "Negatieve impact", "Zeer negatieve impact"]
+      }
+    ]
+  },
+  inzichten: {
+    name: "Inzichten",
+    questions: [
+      {
+        question: "Welke 'aha-moment' of random inzicht had je vandaag?",
+        responses: ["Belangrijk inzicht", "Nuttig inzicht", "Klein inzicht", "Geen bijzonder inzicht", "Verwarrende dag"]
+      },
+      {
+        question: "Wat zou je tegen je beginnende trader-zelf zeggen over vandaag?",
+        responses: ["Belangrijke wijsheid", "Nuttige tip", "Kleine tip", "Weinig toe te voegen", "Waarschuwing"]
+      },
+      {
+        question: "Welke trading bias of valkuil heb je vandaag het meest gevoeld?",
+        responses: ["Geen bias gevoeld", "Lichte bias maar beheerst", "Merkbare bias", "Sterke bias", "Volledig overmand door bias"]
       }
     ]
   }
@@ -171,16 +272,16 @@ async function sendCategoryMenu(chatId) {
         { text: "📈 Marktanalyse", callback_data: "cat_marktanalyse" }
       ],
       [
-        { text: "🧠 Psychologie", callback_data: "cat_psychologie" },
-        { text: "💪 Discipline", callback_data: "cat_discipline" }
+        { text: "🎲 Strategie", callback_data: "cat_strategie" },
+        { text: "🧠 Psychologie", callback_data: "cat_psychologie" }
       ],
       [
-        { text: "📊 Performance", callback_data: "cat_performance" },
-        { text: "⚠️ Risico", callback_data: "cat_risico" }
+        { text: "💪 Discipline", callback_data: "cat_discipline" },
+        { text: "📊 Performance", callback_data: "cat_performance" }
       ],
       [
-        { text: "🔍 Reflectie", callback_data: "cat_reflectie" },
-        { text: "💡 Inzichten", callback_data: "cat_inzichten" }
+        { text: "⚠️ Risico", callback_data: "cat_risico" },
+        { text: "🔍 Reflectie", callback_data: "cat_reflectie" }
       ],
       [
         { text: "🌱 Ontwikkeling", callback_data: "cat_persoonlijkeOntwikkeling" }
