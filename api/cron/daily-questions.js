@@ -3,14 +3,24 @@ const BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN;
 const CHAT_ID = process.env.TELEGRAM_CHAT_ID; // Je eigen chat ID
 
 export default async function handler(req, res) {
-  // Alleen cron jobs en manual triggers accepteren
-  const authHeader = req.headers.authorization;
-  if (authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
+  // Vercel cron jobs hebben geen auth header, dus check anders
+  const isManualCall = req.headers.authorization === `Bearer ${process.env.CRON_SECRET}`;
+  const isVercelCron = req.headers['user-agent']?.includes('vercel-cron');
+  
+  if (!isManualCall && !isVercelCron) {
     return res.status(401).json({ error: 'Unauthorized' });
   }
 
   try {
-    const hour = new Date().getHours();
+    const now = new Date();
+    const hour = now.getHours();
+    const day = now.getDay();
+    
+    // Skip weekends
+    if (day === 0 || day === 6) {
+      return res.status(200).json({ message: 'Weekend - no questions' });
+    }
+    
     let timeOfDay = '';
     let question = '';
 
@@ -29,15 +39,18 @@ export default async function handler(req, res) {
     }
 
     // Stuur vraag naar gebruiker
-    await sendMessage(CHAT_ID, question);
+    await sendMessage(process.env.TELEGRAM_CHAT_ID, 
+      question + "\n\n" +
+      "💬 Typ je antwoord hieronder - ik sla het automatisch op in je Notion database!"
+    );
     
-    console.log(`Sent ${timeOfDay} question at ${new Date().toISOString()}`);
+    console.log(`Sent ${timeOfDay} question at ${now.toISOString()}`);
     
     return res.status(200).json({ 
       success: true, 
       timeOfDay,
       question,
-      timestamp: new Date().toISOString()
+      timestamp: now.toISOString()
     });
 
   } catch (error) {
