@@ -2,7 +2,6 @@
 // Alle 85+ fine-tuned vragen + timing + gefixte property namen
 // ZONDER media support (dat later)
 
-import fetch from 'node-fetch';
 
 const TELEGRAM_TOKEN = process.env.TELEGRAM_BOT_TOKEN;
 const API_URL = 'https://tradingbot-tee-aa.vercel.app';
