@@ -26,9 +26,9 @@ const QUESTION_CATEGORIES = {
       options: ["Familie onderhouden", "Toekomst opbouwen", "Thea trots maken", "Omdat ik het kan", "Mega interessant"]
     },
     {
-      question: "Trade je omdat je het kunt, of omdat het moet?",
+      question: "Is er een goede reden om vandaag te traden?",
       type: "multiple_choice", 
-      options: ["Omdat ik het kan", "Omdat het moet", "Mix van beide", "Onduidelijk"]
+      options: ["Ja, duidelijke reden", "Ja, redelijke reden", "Onduidelijk", "Eigenlijk niet", "Nee, geen reden"]
     },
     {
       question: "Voel je nog steeds dat trading mega interessant is, of is het routine geworden?",
