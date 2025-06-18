@@ -355,7 +355,7 @@ async function getFileInfo(fileId) {
 
 async function saveMediaToNotion(chatId, question, description, category, mediaType, fileInfo, responseType = 'media', questionOptions = []) {
   try {
-    const response = await fetch(`${API_URL}/api/trading-journal-v4`, {
+    const response = await fetch(`${API_URL}/api/trading-journal-v5`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -541,7 +541,7 @@ Gebruik /test om de API te testen
           
         } else if (text === '/test') {
           try {
-            const testResponse = await fetch(`${API_URL}/api/trading-journal-v4`, {
+            const testResponse = await fetch(`${API_URL}/api/trading-journal-v5`, {
               method: 'POST',
               headers: {
                 'Content-Type': 'application/json',
@@ -575,7 +575,7 @@ Gebruik /test om de API te testen
 
           // Send answer to Notion
           try {
-            const response = await fetch(`${API_URL}/api/trading-journal-v4`, {
+            const response = await fetch(`${API_URL}/api/trading-journal-v5`, {
               method: 'POST',
               headers: {
                 'Content-Type': 'application/json',
@@ -741,7 +741,7 @@ Gebruik /test om de API te testen
 
         // Send to Notion
         try {
-          const response = await fetch(`${API_URL}/api/trading-journal-v4`, {
+          const response = await fetch(`${API_URL}/api/trading-journal-v5`, {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
