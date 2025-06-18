@@ -67,58 +67,126 @@ function getSmartResponseColor(question, answer, questionOptions, questionType) 
   const lowerQuestion = question.toLowerCase();
   const lowerAnswer = answer.toLowerCase();
 
-  // Positieve vragen (hoe beter het antwoord, hoe groener)
+  console.log('Color debug:', { question: lowerQuestion, answer, options: questionOptions });
+
+  // Negatieve vragen (Ja = slecht/rood, Nee = goed/groen)
+  const negativeQuestions = [
+    'heb je fomo',
+    'heb je revenge trades', 
+    'chase je price',
+    'voel je druk',
+    'ben je sloppy',
+    'oude patronen', // Ja = rood, Nee = groen
+    'heb je oude patronen gezien' // Ja = rood, Nee = groen
+  ];
+
+  // Check voor nummer scales (1-5, 1-10, etc) - hoger = beter
+  const isNumberScale = questionOptions && questionOptions.length > 2 && 
+    questionOptions.every(opt => !isNaN(opt) || opt.match(/^\d+$/));
+
+  console.log('Is number scale:', isNumberScale);
+
+  // Check of het een negatieve vraag is
+  const isNegativeQuestion = negativeQuestions.some(keyword => 
+    lowerQuestion.includes(keyword)
+  );
+
+  console.log('Is negative question:', isNegativeQuestion);
+
+  if (isNegativeQuestion && questionOptions) {
+    // Voor negatieve vragen: omgekeerde kleuren (Ja = rood, Nee = groen)
+    const totalOptions = questionOptions.length;
+    const answerIndex = questionOptions.indexOf(answer);
+    
+    console.log('Negative question logic:', { answerIndex, totalOptions });
+    
+    if (answerIndex !== -1) {
+      const reversedIndex = totalOptions - 1 - answerIndex;
+      
+      if (totalOptions === 2) {
+        return reversedIndex === 0 ? '🟢 Groen' : '🔴 Rood';
+      } 
+      else if (totalOptions === 3) {
+        if (reversedIndex === 0) return '🟢 Groen';
+        if (reversedIndex === 1) return '🟡 Geel';
+        return '🔴 Rood';
+      }
+      else if (totalOptions === 4) {
+        if (reversedIndex === 0) return '🟢 Groen';
+        if (reversedIndex === 1) return '🟡 Geel';
+        if (reversedIndex === 2) return '🟠 Oranje';
+        return '🔴 Rood';
+      }
+      else if (totalOptions >= 5) {
+        if (reversedIndex === 0) return '🟢 Groen';
+        if (reversedIndex === 1) return '🟡 Geel';
+        if (reversedIndex === 2) return '🟠 Oranje';
+        if (reversedIndex === 3) return '🔴 Rood';
+        return '🟣 Donkerrood';
+      }
+    }
+  }
+
+  // Check voor nummer scales waar hoger = beter
+  if (isNumberScale) {
+    const answerIndex = questionOptions.indexOf(answer);
+    const totalOptions = questionOptions.length;
+    
+    console.log('Number scale logic:', { answerIndex, totalOptions, answer });
+    
+    if (answerIndex !== -1) {
+      // Voor nummer scales: laatste optie (hoogste nummer) = groen
+      const reversedIndex = totalOptions - 1 - answerIndex;
+      
+      if (totalOptions <= 5) {
+        if (reversedIndex === 0) return '🟢 Groen';
+        if (reversedIndex === 1) return '🟡 Geel';
+        if (reversedIndex === 2) return '🟠 Oranje';
+        if (reversedIndex === 3) return '🔴 Rood';
+        return '🟣 Donkerrood';
+      } else {
+        // Voor 1-10 scale
+        if (reversedIndex <= 1) return '🟢 Groen';
+        if (reversedIndex <= 3) return '🟡 Geel';
+        if (reversedIndex <= 5) return '🟠 Oranje';
+        if (reversedIndex <= 7) return '🔴 Rood';
+        return '🟣 Donkerrood';
+      }
+    }
+  }
+
+  // Positieve vragen (eerste optie = beste, of voor scales: hoger = beter)
   const positiveQuestions = [
     'heb je je plan gevolgd',
-    'ben je mechanisch gebleven',
+    'ben je mechanisch gebleven', 
     'heb je je regels gevolgd',
     'trade je zoals de persoon die je wilt zijn',
     'wacht je op je trigger',
     'ben je een leeuw',
     'heb je de 4r+ regel toegepast',
     'ben je dankbaar',
-    'ben je vandaag 1% gegroeid'
+    'ben je vandaag 1% gegroeid',
+    'tevreden', // Scale vraag: 5 = groen, 1 = donkerrood
+    'goed voorbereid', // Meest eens = groen, minst eens = donkerrood
+    'volledig voorbereid',
+    'prep gedaan',
+    'ready',
+    'goede reden' // Ja duidelijk = groen, Nee geen reden = donkerrood
   ];
 
-  // Negatieve vragen (eerste antwoord = slecht, laatste = goed)
-  const negativeQuestions = [
-    'heb je fomo',
-    'heb je revenge trades',
-    'chase je price',
-    'voel je druk',
-    'ben je sloppy',
-    'heb je old patronen gezien'
-  ];
-
-  // Check of het een positieve vraag is
   const isPositiveQuestion = positiveQuestions.some(keyword => 
     lowerQuestion.includes(keyword)
   );
 
-  // Check of het een negatieve vraag is  
-  const isNegativeQuestion = negativeQuestions.some(keyword => 
-    lowerQuestion.includes(keyword)
-  );
+  console.log('Is positive question:', isPositiveQuestion);
 
   if (isPositiveQuestion) {
     // Voor positieve vragen: eerste antwoord = groen, laatste = rood
     return getResponseColor(answer, questionOptions, questionType);
   }
 
-  if (isNegativeQuestion && questionOptions) {
-    // Voor negatieve vragen: omgekeerde kleuren
-    const totalOptions = questionOptions.length;
-    const answerIndex = questionOptions.indexOf(answer);
-    
-    if (answerIndex !== -1) {
-      // Omkeren: laatste antwoord wordt groen, eerste wordt rood
-      const reversedIndex = totalOptions - 1 - answerIndex;
-      const reversedOptions = [...questionOptions].reverse();
-      return getResponseColor(reversedOptions[answerIndex], questionOptions, questionType);
-    }
-  }
-
   // Default logic voor andere vragen
+  console.log('Using default logic');
   return getResponseColor(answer, questionOptions, questionType);
 }
 
