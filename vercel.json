@@ -2,11 +2,19 @@
   "crons": [
     {
       "path": "/api/cron/daily-questions",
-      "schedule": "30 7 * * 1-5"
+      "schedule": "15 6 * * 1-5"
     },
     {
-      "path": "/api/cron/daily-questions", 
-      "schedule": "45 19 * * 1-5"
+      "path": "/api/cron/daily-questions",
+      "schedule": "0 10 * * 1-5"
+    },
+    {
+      "path": "/api/cron/daily-questions",
+      "schedule": "30 13 * * 1-5"
+    },
+    {
+      "path": "/api/cron/daily-questions",
+      "schedule": "30 19 * * 1-5"
     }
   ]
 }
