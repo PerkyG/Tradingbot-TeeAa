@@ -8,6 +8,10 @@ const API_URL = 'https://tradingbot-tee-aa.vercel.app';
 // Session management
 const userSessions = new Map();
 
+// Smart Question Rotation - Track asked questions
+const askedQuestions = new Map(); // chatId -> Set van gestelde vragen
+const categoryProgress = new Map(); // chatId -> object met progress per categorie
+
 // 30 minute session timeout
 const SESSION_TIMEOUT = 30 * 60 * 1000;
 
@@ -26,9 +30,9 @@ const QUESTION_CATEGORIES = {
       options: ["Familie onderhouden", "Toekomst opbouwen", "Thea trots maken", "Omdat ik het kan", "Mega interessant"]
     },
     {
-      question: "Trade je omdat je het kunt, of omdat het moet?",
+      question: "Is er een goede reden om vandaag te traden?",
       type: "multiple_choice", 
-      options: ["Omdat ik het kan", "Omdat het moet", "Mix van beide", "Onduidelijk"]
+      options: ["Ja, duidelijke reden", "Ja, redelijke reden", "Onduidelijk", "Eigenlijk niet", "Nee, geen reden"]
     },
     {
       question: "Voel je nog steeds dat trading mega interessant is, of is het routine geworden?",
@@ -353,9 +357,9 @@ async function getFileInfo(fileId) {
   return response.json();
 }
 
-async function saveMediaToNotion(chatId, question, description, category, mediaType, fileInfo, responseType = 'media') {
+async function saveMediaToNotion(chatId, question, description, category, mediaType, fileInfo, responseType = 'media', questionOptions = []) {
   try {
-    const response = await fetch(`${API_URL}/api/trading-journal-v3`, {
+    const response = await fetch(`${API_URL}/api/trading-journal-v5`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -366,6 +370,7 @@ async function saveMediaToNotion(chatId, question, description, category, mediaT
         category: category,
         time_of_day: Date.now() < 43200000 ? 'Morning' : 'Evening',
         response_type: responseType,
+        question_options: questionOptions,
         media_type: mediaType,
         media_url: fileInfo.result ? `https://api.telegram.org/file/bot${TELEGRAM_TOKEN}/${fileInfo.result.file_path}` : '',
         media_file_size: fileInfo.result ? fileInfo.result.file_size : 0,
@@ -380,6 +385,74 @@ async function saveMediaToNotion(chatId, question, description, category, mediaT
   }
 }
 
+function initializeUserProgress(chatId) {
+  if (!askedQuestions.has(chatId)) {
+    askedQuestions.set(chatId, new Set());
+  }
+  
+  if (!categoryProgress.has(chatId)) {
+    const progress = {};
+    Object.keys(QUESTION_CATEGORIES).forEach(category => {
+      progress[category] = {
+        totalQuestions: QUESTION_CATEGORIES[category].length,
+        askedQuestions: new Set(),
+        lastAsked: null
+      };
+    });
+    categoryProgress.set(chatId, progress);
+  }
+}
+
+function getSmartQuestion(chatId, category) {
+  initializeUserProgress(chatId);
+  
+  const questions = QUESTION_CATEGORIES[category];
+  if (!questions || questions.length === 0) {
+    return null;
+  }
+
+  const userProgress = categoryProgress.get(chatId);
+  const categoryData = userProgress[category];
+  
+  // Filter out already asked questions
+  const availableQuestions = questions.filter((_, index) => 
+    !categoryData.askedQuestions.has(index)
+  );
+
+  let selectedQuestion;
+  let selectedIndex;
+
+  if (availableQuestions.length === 0) {
+    // All questions asked - reset and start over
+    console.log(`Resetting questions for category: ${category}`);
+    categoryData.askedQuestions.clear();
+    selectedIndex = Math.floor(Math.random() * questions.length);
+    selectedQuestion = questions[selectedIndex];
+  } else {
+    // Pick from available questions
+    const randomAvailableIndex = Math.floor(Math.random() * availableQuestions.length);
+    selectedQuestion = availableQuestions[randomAvailableIndex];
+    selectedIndex = questions.indexOf(selectedQuestion);
+  }
+
+  // Mark as asked
+  categoryData.askedQuestions.add(selectedIndex);
+  categoryData.lastAsked = Date.now();
+  
+  // Create unique key for this question
+  const questionKey = `${category}_${selectedIndex}`;
+  askedQuestions.get(chatId).add(questionKey);
+
+  console.log(`Smart question selected for ${category}:`, {
+    questionIndex: selectedIndex,
+    totalInCategory: questions.length,
+    askedInCategory: categoryData.askedQuestions.size,
+    question: selectedQuestion.question.substring(0, 50) + '...'
+  });
+
+  return selectedQuestion;
+}
+
 function getRandomQuestion(category) {
   const questions = QUESTION_CATEGORIES[category];
   if (!questions || questions.length === 0) {
@@ -388,6 +461,24 @@ function getRandomQuestion(category) {
   
   const randomIndex = Math.floor(Math.random() * questions.length);
   return questions[randomIndex];
+}
+
+function getUserProgress(chatId) {
+  initializeUserProgress(chatId);
+  const userProgress = categoryProgress.get(chatId);
+  
+  const summary = {};
+  Object.keys(userProgress).forEach(category => {
+    const data = userProgress[category];
+    summary[category] = {
+      total: data.totalQuestions,
+      asked: data.askedQuestions.size,
+      remaining: data.totalQuestions - data.askedQuestions.size,
+      percentage: Math.round((data.askedQuestions.size / data.totalQuestions) * 100)
+    };
+  });
+  
+  return summary;
 }
 
 function getCategoryIcon(category) {
@@ -421,6 +512,7 @@ async function askRandomQuestion(chatId, category) {
     question: question.question,
     category: category,
     questionType: question.type,
+    questionOptions: question.options || [], // Opties voor kleuren
     timestamp: Date.now()
   });
 
@@ -502,6 +594,8 @@ Je hebt toegang tot 12 categorieën met 85+ fine-tuned vragen:
 
 Gebruik /menu voor het hoofdmenu
 Gebruik /test om de API te testen
+Gebruik /progress om je vraag progress te zien
+Gebruik /reset om vraag progress te resetten
 
 *Less is more. Be a lion. Today A King.* 🦁`);
           
@@ -539,7 +633,7 @@ Gebruik /test om de API te testen
           
         } else if (text === '/test') {
           try {
-            const testResponse = await fetch(`${API_URL}/api/trading-journal-v3`, {
+            const testResponse = await fetch(`${API_URL}/api/trading-journal-v5`, {
               method: 'POST',
               headers: {
                 'Content-Type': 'application/json',
@@ -554,7 +648,41 @@ Gebruik /test om de API te testen
 
             if (testResponse.ok) {
               await sendMessage(chatId, "✅ API test succesvol! Bot + Media support werkt perfect.");
+            } else if (text === '/progress') {
+          const progress = getUserProgress(chatId);
+          let progressText = "📊 **Vraag Progress:**\n\n";
+          
+          Object.keys(progress).forEach(category => {
+            const data = progress[category];
+            const icon = getCategoryIcon(category);
+            progressText += `${icon} ${category}: ${data.asked}/${data.total} (${data.percentage}%)\n`;
+            if (data.remaining > 0) {
+              progressText += `   └ ${data.remaining} vragen over\n`;
             } else {
+              progressText += `   └ ✅ Alle vragen gehad!\n`;
+            }
+            progressText += `\n`;
+          });
+          
+          progressText += `\n💡 *Geen dubbele vragen tot categorie leeg is!*`;
+          
+          await sendMessage(chatId, progressText);
+          
+        } else if (text === '/reset') {
+          // Reset alle vraag progress
+          if (askedQuestions.has(chatId)) {
+            askedQuestions.get(chatId).clear();
+          }
+          if (categoryProgress.has(chatId)) {
+            const userProgress = categoryProgress.get(chatId);
+            Object.keys(userProgress).forEach(category => {
+              userProgress[category].askedQuestions.clear();
+            });
+          }
+          
+          await sendMessage(chatId, "🔄 **Progress gereset!**\n\nAlle vragen zijn weer beschikbaar voor alle categorieën.");
+          
+        } else {
               await sendMessage(chatId, "❌ API test gefaald. Er is een probleem met de verbinding.");
             }
           } catch (error) {
@@ -573,7 +701,7 @@ Gebruik /test om de API te testen
 
           // Send answer to Notion
           try {
-            const response = await fetch(`${API_URL}/api/trading-journal-v3`, {
+            const response = await fetch(`${API_URL}/api/trading-journal-v5`, {
               method: 'POST',
               headers: {
                 'Content-Type': 'application/json',
@@ -583,7 +711,8 @@ Gebruik /test om de API te testen
                 answer: text,
                 category: session.category,
                 time_of_day: Date.now() < 43200000 ? 'Morning' : 'Evening',
-                response_type: 'Text'
+                response_type: 'Text',
+                question_options: session.questionOptions || []
               })
             });
 
@@ -738,7 +867,7 @@ Gebruik /test om de API te testen
 
         // Send to Notion
         try {
-          const response = await fetch(`${API_URL}/api/trading-journal-v3`, {
+          const response = await fetch(`${API_URL}/api/trading-journal-v5`, {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
@@ -748,7 +877,8 @@ Gebruik /test om de API te testen
               answer: answer,
               category: session.category,
               time_of_day: Date.now() < 43200000 ? 'Morning' : 'Evening',
-              response_type: session.questionType
+              response_type: session.questionType,
+              question_options: session.questionOptions || []
             })
           });
 
