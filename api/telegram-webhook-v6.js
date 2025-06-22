@@ -359,6 +359,7 @@ function getSmartQuestion(chatId, category) {
   const userProgress = categoryProgress.get(chatId);
   const categoryData = userProgress[category];
   
-  // Filter out already asked questions
-  const availableQuestions = questions.filter((_, index) => 
-    !categoryData.askedQuestions.has(index)
+// Filter out already asked questions
+const availableQuestions = questions.filter((question, index) => {
+  return !categoryData.askedQuestions.has(index);
+});
