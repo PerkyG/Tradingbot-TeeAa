@@ -54,12 +54,22 @@ async function calculateDailyScore() {
   let validAnswers = 0;
 
   todaysEntries.forEach(entry => {
-    // Skip volatiliteit vraag voor Daily Score
+    // Skip bepaalde vragen voor Daily Score
     const questionProperty = entry.properties.Question;
     if (questionProperty && questionProperty.rich_text && questionProperty.rich_text.length > 0) {
       const questionText = questionProperty.rich_text[0].text.content.toLowerCase();
-      if (questionText.includes('volatiliteit')) {
-        console.log('Skipping volatility question for daily score');
+      
+      // Lijst van vragen die Daily Score niet beïnvloeden
+      const excludeQuestions = [
+        'volatiliteit',
+        'te spelen',
+        'waarom doe je dit'
+      ];
+      
+      const shouldExclude = excludeQuestions.some(keyword => questionText.includes(keyword));
+      
+      if (shouldExclude) {
+        console.log(`Skipping question for daily score: ${questionText}`);
         return; // Skip this entry
       }
     }
