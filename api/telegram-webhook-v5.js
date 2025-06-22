@@ -664,7 +664,7 @@ Gebruik /reset om vraag progress te resetten
             progressText += `\n`;
           });
           
-          progressText += `\n💡 *Geen dubbele vragen tot categorie leeg is!*`;
+          progressText += `💡 *Geen dubbele vragen tot categorie leeg is!*`;
           
           await sendMessage(chatId, progressText);
           
