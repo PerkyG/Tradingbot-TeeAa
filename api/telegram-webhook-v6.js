@@ -361,4 +361,4 @@ function getSmartQuestion(chatId, category) {
   
   // Filter out already asked questions
   const availableQuestions = questions.filter((_, index) => 
-    !categoryData.askedQuestions.has(index
+    !categoryData.askedQuestions.has(index)
