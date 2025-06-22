@@ -54,6 +54,16 @@ async function calculateDailyScore() {
   let validAnswers = 0;
 
   todaysEntries.forEach(entry => {
+    // Skip volatiliteit vraag voor Daily Score
+    const questionProperty = entry.properties.Question;
+    if (questionProperty && questionProperty.rich_text && questionProperty.rich_text.length > 0) {
+      const questionText = questionProperty.rich_text[0].text.content.toLowerCase();
+      if (questionText.includes('volatiliteit')) {
+        console.log('Skipping volatility question for daily score');
+        return; // Skip this entry
+      }
+    }
+
     const colorProperty = entry.properties.Response_Color;
     if (colorProperty && colorProperty.select && colorProperty.select.name) {
       const color = colorProperty.select.name;
