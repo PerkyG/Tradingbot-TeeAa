@@ -146,6 +146,22 @@ function getSmartResponseColor(question, answer, questionOptions, questionType) 
 
   console.log('Color debug:', { question: lowerQuestion, answer, options: questionOptions });
 
+  // Vragen die geen kleuren krijgen (altijd geel/neutraal)
+  const neutralQuestions = [
+    'volatiliteit',
+    'te spelen',
+    'waarom doe je dit'
+  ];
+  
+  const isNeutralQuestion = neutralQuestions.some(keyword => 
+    lowerQuestion.includes(keyword)
+  );
+  
+  if (isNeutralQuestion) {
+    console.log('Neutral question - always yellow');
+    return '🟡 Geel';
+  }
+
   // Negatieve vragen
   const negativeQuestions = [
     'heb je fomo', 'heb je revenge trades', 'chase je price',
