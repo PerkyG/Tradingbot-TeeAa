@@ -648,26 +648,22 @@ Gebruik /reset om vraag progress te resetten
 
             if (testResponse.ok) {
               await sendMessage(chatId, "✅ API test succesvol! Bot + Media support werkt perfect.");
+          
+            } else if (text === '/hello') {
+  await sendMessage(chatId, "✅ Hello werkt! Bot code is updated.");
+          
             } else if (text === '/progress') {
-          const progress = getUserProgress(chatId);
-          let progressText = "📊 **Vraag Progress:**\n\n";
-          
-          Object.keys(progress).forEach(category => {
-            const data = progress[category];
-            const icon = getCategoryIcon(category);
-            progressText += `${icon} ${category}: ${data.asked}/${data.total} (${data.percentage}%)\n`;
-            if (data.remaining > 0) {
-              progressText += `   └ ${data.remaining} vragen over\n`;
-            } else {
-              progressText += `   └ ✅ Alle vragen gehad!\n`;
-            }
-            progressText += `\n`;
-          });
-          
-          progressText += `💡 *Geen dubbele vragen tot categorie leeg is!*`;
-          
-          await sendMessage(chatId, progressText);
-          
+  const progress = getUserProgress(chatId);
+  let progressText = "📊 **Vraag Progress:**\n\n";
+  
+  Object.keys(progress).forEach(category => {
+    const data = progress[category];
+    const icon = getCategoryIcon(category);
+    progressText += `${icon} ${category}: ${data.asked}/${data.total} (${data.percentage}%)\n`;
+  });
+  
+  await sendMessage(chatId, progressText);
+              
         } else if (text === '/reset') {
           // Reset alle vraag progress
           if (askedQuestions.has(chatId)) {
