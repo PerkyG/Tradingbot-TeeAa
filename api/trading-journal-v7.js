@@ -65,18 +65,38 @@ async function getTodaysEntries(useCache = true) {
 
 // Vragen die uitgesloten worden van daily score
 const EXCLUDE_FROM_DAILY_SCORE = [
+  // Motivatie vragen
+  'waarom doe je dit',
+  'voor wat ben je vandaag het meest dankbaar',
+  
+  // Marktanalyse vragen (informatief, geen score)
   'volatiliteit',
   'te spelen', 
-  'waarom doe je dit',
   'overall market strength',
   'b.o.b. tickers',
   'specifieke b.o.b',
   'marktanalyse',
   'flags clean',
-  'mindfucked',
-  'sentiment',
-  'spy/qqq sterk genoeg',
-  'liquid stocks'
+  'welke sectoren zijn sterk',
+  
+  // Open reflectie vragen
+  'welke aha-moment',
+  'welke trading bias',
+  'wat is je doel voor family time',
+  'op welk vlak ga je vandaag 1% groeien',
+  'welke oude patronen',
+  'wat kan er vandaag mis gaan',
+  
+  // Performance tracking (aparte metrics)
+  'wat is je totale r/r voor vandaag',
+  'wat is je totale r/r voor deze week',
+  'welk timeframe was vandaag',
+  
+  // Memo's (altijd groen, tellen niet mee)
+  'today a king',
+  'k.i.s.s.',
+  'play b.o.b.',
+  'less is more'
 ];
 
 // Bereken dagelijkse score
