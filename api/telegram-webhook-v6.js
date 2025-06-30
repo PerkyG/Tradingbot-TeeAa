@@ -1,5 +1,6 @@
-// api/telegram-webhook-v6.js - Final Version
-// Complete Trading Bot met Smart Question Rotation + Media Support
+// api/telegram-webhook-v5.js
+// Complete Trading Bot met Media Support
+// Alle 85+ fine-tuned vragen + foto's, voice notes, documenten
 
 const TELEGRAM_TOKEN = process.env.TELEGRAM_BOT_TOKEN;
 const API_URL = 'https://tradingbot-tee-aa.vercel.app';
@@ -20,7 +21,7 @@ const MORNING_CATEGORIES = ['motivatie', 'doelen', 'voorbereiding', 'marktanalys
 // Evening categories (20:45)  
 const EVENING_CATEGORIES = ['performance', 'inzichten', 'reflectie', 'ontwikkeling'];
 
-// Alle 85+ fine-tuned vragen
+// Alle 85+ fine-tuned vragen (same as v4-fixed)
 const QUESTION_CATEGORIES = {
   motivatie: [
     {
@@ -329,7 +330,61 @@ const QUESTION_CATEGORIES = {
   ]
 };
 
-// Smart Question Rotation Functions
+async function sendMessage(chatId, text, options = {}) {
+  const url = `https://api.telegram.org/bot${TELEGRAM_TOKEN}/sendMessage`;
+  
+  const payload = {
+    chat_id: chatId,
+    text: text,
+    parse_mode: 'HTML',
+    ...options
+  };
+
+  const response = await fetch(url, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(payload)
+  });
+
+  return response.json();
+}
+
+async function getFileInfo(fileId) {
+  const url = `https://api.telegram.org/bot${TELEGRAM_TOKEN}/getFile?file_id=${fileId}`;
+  const response = await fetch(url);
+  return response.json();
+}
+
+async function saveMediaToNotion(chatId, question, description, category, mediaType, fileInfo, responseType = 'media', questionOptions = []) {
+  try {
+    const response = await fetch(`${API_URL}/api/trading-journal-v5`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        question: question,
+        answer: description,
+        category: category,
+        time_of_day: Date.now() < 43200000 ? 'Morning' : 'Evening',
+        response_type: responseType,
+        question_options: questionOptions,
+        media_type: mediaType,
+        media_url: fileInfo.result ? `https://api.telegram.org/file/bot${TELEGRAM_TOKEN}/${fileInfo.result.file_path}` : '',
+        media_file_size: fileInfo.result ? fileInfo.result.file_size : 0,
+        media_description: description
+      })
+    });
+
+    return response.ok;
+  } catch (error) {
+    console.error('Error saving media to Notion:', error);
+    return false;
+  }
+}
+
 function initializeUserProgress(chatId) {
   if (!askedQuestions.has(chatId)) {
     askedQuestions.set(chatId, new Set());
@@ -359,7 +414,492 @@ function getSmartQuestion(chatId, category) {
   const userProgress = categoryProgress.get(chatId);
   const categoryData = userProgress[category];
   
-// Filter out already asked questions
-const availableQuestions = questions.filter((question, index) => {
-  return !categoryData.askedQuestions.has(index);
-});
+  // Filter out already asked questions
+  const availableQuestions = questions.filter((_, index) => 
+    !categoryData.askedQuestions.has(index)
+  );
+
+  let selectedQuestion;
+  let selectedIndex;
+
+  if (availableQuestions.length === 0) {
+    // All questions asked - reset and start over
+    console.log(`Resetting questions for category: ${category}`);
+    categoryData.askedQuestions.clear();
+    selectedIndex = Math.floor(Math.random() * questions.length);
+    selectedQuestion = questions[selectedIndex];
+  } else {
+    // Pick from available questions
+    const randomAvailableIndex = Math.floor(Math.random() * availableQuestions.length);
+    selectedQuestion = availableQuestions[randomAvailableIndex];
+    selectedIndex = questions.indexOf(selectedQuestion);
+  }
+
+  // Mark as asked
+  categoryData.askedQuestions.add(selectedIndex);
+  categoryData.lastAsked = Date.now();
+  
+  // Create unique key for this question
+  const questionKey = `${category}_${selectedIndex}`;
+  askedQuestions.get(chatId).add(questionKey);
+
+  console.log(`Smart question selected for ${category}:`, {
+    questionIndex: selectedIndex,
+    totalInCategory: questions.length,
+    askedInCategory: categoryData.askedQuestions.size,
+    question: selectedQuestion.question.substring(0, 50) + '...'
+  });
+
+  return selectedQuestion;
+}
+
+function getRandomQuestion(category) {
+  const questions = QUESTION_CATEGORIES[category];
+  if (!questions || questions.length === 0) {
+    return null;
+  }
+  
+  const randomIndex = Math.floor(Math.random() * questions.length);
+  return questions[randomIndex];
+}
+
+function getUserProgress(chatId) {
+  initializeUserProgress(chatId);
+  const userProgress = categoryProgress.get(chatId);
+  
+  const summary = {};
+  Object.keys(userProgress).forEach(category => {
+    const data = userProgress[category];
+    summary[category] = {
+      total: data.totalQuestions,
+      asked: data.askedQuestions.size,
+      remaining: data.totalQuestions - data.askedQuestions.size,
+      percentage: Math.round((data.askedQuestions.size / data.totalQuestions) * 100)
+    };
+  });
+  
+  return summary;
+}
+
+function getCategoryIcon(category) {
+  const icons = {
+    motivatie: "🎯",
+    doelen: "📋", 
+    voorbereiding: "📊",
+    marktanalyse: "📈",
+    strategie: "🎲",
+    psychologie: "🧠",
+    discipline: "💪",
+    risico: "⚠️",
+    performance: "📊",
+    reflectie: "🔍",
+    ontwikkeling: "🌱",
+    inzichten: "💡"
+  };
+  return icons[category] || "❓";
+}
+
+async function askRandomQuestion(chatId, category) {
+  const question = getRandomQuestion(category);
+  
+  if (!question) {
+    await sendMessage(chatId, "Sorry, ik ken deze categorie nog niet. Probeer /menu voor beschikbare categorieën.");
+    return;
+  }
+
+  // Store session with 30 minute timeout
+  userSessions.set(chatId, {
+    question: question.question,
+    category: category,
+    questionType: question.type,
+    questionOptions: question.options || [], // Opties voor kleuren
+    timestamp: Date.now()
+  });
+
+  // Clean up session after 30 minutes
+  setTimeout(() => {
+    if (userSessions.has(chatId)) {
+      const session = userSessions.get(chatId);
+      if (Date.now() - session.timestamp >= SESSION_TIMEOUT) {
+        userSessions.delete(chatId);
+      }
+    }
+  }, SESSION_TIMEOUT);
+
+  let keyboard = null;
+  
+  if (question.type === 'multiple_choice' && question.options.length > 0) {
+    const buttons = question.options.map(option => [{
+      text: option,
+      callback_data: `answer_${option}`
+    }]);
+    
+    keyboard = {
+      inline_keyboard: buttons
+    };
+  } else if (question.type === 'memo') {
+    keyboard = {
+      inline_keyboard: [[{
+        text: "✅ Gezien",
+        callback_data: "memo_seen"
+      }]]
+    };
+  }
+
+  const icon = getCategoryIcon(category);
+  const questionText = `${icon} **${category.toUpperCase()}**\n\n${question.question}`;
+
+  await sendMessage(chatId, questionText, keyboard ? { reply_markup: keyboard } : {});
+}
+
+export default async function handler(req, res) {
+  if (req.method !== 'POST') {
+    return res.status(405).json({ error: 'Method not allowed' });
+  }
+
+  try {
+    const update = req.body;
+    
+    if (update.message) {
+      const chatId = update.message.chat.id;
+      const text = update.message.text;
+
+      // Handle text messages
+      if (text) {
+        if (text === '/start') {
+          await sendMessage(chatId, `🦁 **Welcome to your Trading Journal!**
+
+*Today A King...* 🦁
+
+Je hebt toegang tot 12 categorieën met 85+ fine-tuned vragen:
+
+🎯 Motivatie - Waarom doe je dit?
+📋 Doelen - Wat wil je bereiken?  
+📊 Voorbereiding - Ben je ready?
+📈 Marktanalyse - Hoe staat de markt?
+🎲 Strategie - Wat is je plan?
+🧠 Psychologie - Hoe is je mindset?
+💪 Discipline - Volg je je regels?
+⚠️ Risico - Wat kan er mis gaan?
+📊 Performance - Hoe presteer je?
+🔍 Reflectie - Wat leer je?
+🌱 Ontwikkeling - Groei je als persoon?
+💡 Inzichten - Welke wijsheid pak je op?
+
+📸 **NIEUW: Media Support**
+- Stuur foto's van charts/screenshots
+- Voice notes voor snelle gedachten  
+- Documenten voor analyse
+- Alles wordt opgeslagen in je database!
+
+Gebruik /menu voor het hoofdmenu
+Gebruik /test om de API te testen
+Gebruik /progress om je vraag progress te zien
+Gebruik /reset om vraag progress te resetten
+
+*Less is more. Be a lion. Today A King.* 🦁`);
+          
+        } else if (text === '/menu') {
+          const keyboard = {
+            inline_keyboard: [
+              [
+                { text: "🎯 Motivatie", callback_data: "cat_motivatie" },
+                { text: "📋 Doelen", callback_data: "cat_doelen" }
+              ],
+              [
+                { text: "📊 Voorbereiding", callback_data: "cat_voorbereiding" },
+                { text: "📈 Marktanalyse", callback_data: "cat_marktanalyse" }
+              ],
+              [
+                { text: "🎲 Strategie", callback_data: "cat_strategie" },
+                { text: "🧠 Psychologie", callback_data: "cat_psychologie" }
+              ],
+              [
+                { text: "💪 Discipline", callback_data: "cat_discipline" },
+                { text: "⚠️ Risico", callback_data: "cat_risico" }
+              ],
+              [
+                { text: "📊 Performance", callback_data: "cat_performance" },
+                { text: "🔍 Reflectie", callback_data: "cat_reflectie" }
+              ],
+              [
+                { text: "🌱 Ontwikkeling", callback_data: "cat_ontwikkeling" },
+                { text: "💡 Inzichten", callback_data: "cat_inzichten" }
+              ]
+            ]
+          };
+          
+          await sendMessage(chatId, "🎯 **Kies een categorie:**\n\n📸 Je kunt ook gewoon een foto, voice note of document sturen!", { reply_markup: keyboard });
+          
+        } else if (text === '/test') {
+          try {
+            const testResponse = await fetch(`${API_URL}/api/trading-journal-v5`, {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({
+                question: 'Test van Complete Trading Bot v5 met Media',
+                answer: 'API + Media test succesvol!',
+                category: 'Test',
+                time_of_day: 'Test'
+              })
+            });
+
+            if (testResponse.ok) {
+              await sendMessage(chatId, "✅ API test succesvol! Bot + Media support werkt perfect.");
+            } else if (text === '/progress') {
+          const progress = getUserProgress(chatId);
+          let progressText = "📊 **Vraag Progress:**\n\n";
+          
+          Object.keys(progress).forEach(category => {
+            const data = progress[category];
+            const icon = getCategoryIcon(category);
+            progressText += `${icon} ${category}: ${data.asked}/${data.total} (${data.percentage}%)\n`;
+            if (data.remaining > 0) {
+              progressText += `   └ ${data.remaining} vragen over\n`;
+            } else {
+              progressText += `   └ ✅ Alle vragen gehad!\n`;
+            }
+            progressText += `\n`;
+          });
+          
+          progressText += `💡 *Geen dubbele vragen tot categorie leeg is!*`;
+          
+          await sendMessage(chatId, progressText);
+          
+        } else if (text === '/reset') {
+          // Reset alle vraag progress
+          if (askedQuestions.has(chatId)) {
+            askedQuestions.get(chatId).clear();
+          }
+          if (categoryProgress.has(chatId)) {
+            const userProgress = categoryProgress.get(chatId);
+            Object.keys(userProgress).forEach(category => {
+              userProgress[category].askedQuestions.clear();
+            });
+          }
+          
+          await sendMessage(chatId, "🔄 **Progress gereset!**\n\nAlle vragen zijn weer beschikbaar voor alle categorieën.");
+          
+        } else {
+              await sendMessage(chatId, "❌ API test gefaald. Er is een probleem met de verbinding.");
+            }
+          } catch (error) {
+            await sendMessage(chatId, `❌ Kan API niet bereiken: ${error.message}`);
+          }
+          
+        } else {
+          // Handle text response to question
+          const session = userSessions.get(chatId);
+          
+          if (!session) {
+            await sendMessage(chatId, "⏰ Je sessie is verlopen of ik weet niet op welke vraag je antwoordt. Hier is een nieuwe vraag!");
+            await askRandomQuestion(chatId, 'motivatie');
+            return res.status(200).json({ ok: true });
+          }
+
+          // Send answer to Notion
+          try {
+            const response = await fetch(`${API_URL}/api/trading-journal-v5`, {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({
+                question: session.question,
+                answer: text,
+                category: session.category,
+                time_of_day: Date.now() < 43200000 ? 'Morning' : 'Evening',
+                response_type: 'Text',
+                question_options: session.questionOptions || []
+              })
+            });
+
+            if (response.ok) {
+              await sendMessage(chatId, "✅ Antwoord opgeslagen in je Notion database!");
+            } else {
+              await sendMessage(chatId, "❌ Er ging iets mis bij het opslaan. Probeer het later nog eens.");
+            }
+          } catch (error) {
+            await sendMessage(chatId, "❌ Kon niet opslaan in database. Check je verbinding.");
+          }
+
+          // Clear session
+          userSessions.delete(chatId);
+        }
+      }
+
+      // Handle photo messages
+      if (update.message.photo) {
+        const photo = update.message.photo[update.message.photo.length - 1]; // Get highest resolution
+        const caption = update.message.caption || "Screenshot/Foto";
+        
+        try {
+          const fileInfo = await getFileInfo(photo.file_id);
+          
+          const success = await saveMediaToNotion(
+            chatId, 
+            "Foto/Screenshot geupload", 
+            caption, 
+            'Media', 
+            'Foto', 
+            fileInfo, 
+            'media'
+          );
+
+          if (success) {
+            await sendMessage(chatId, "📸 Foto opgeslagen in je Notion database!");
+          } else {
+            await sendMessage(chatId, "❌ Kon foto niet opslaan. Probeer opnieuw.");
+          }
+        } catch (error) {
+          await sendMessage(chatId, "❌ Error bij foto upload.");
+        }
+      }
+
+      // Handle voice messages
+      if (update.message.voice) {
+        const voice = update.message.voice;
+        const duration = voice.duration;
+        const description = `Voice note (${duration}s)`;
+        
+        try {
+          const fileInfo = await getFileInfo(voice.file_id);
+          
+          const success = await saveMediaToNotion(
+            chatId,
+            "Voice note geupload",
+            description,
+            'Media',
+            'Voice Note',
+            fileInfo,
+            'media'
+          );
+
+          if (success) {
+            await sendMessage(chatId, "🎙️ Voice note opgeslagen in je Notion database!");
+          } else {
+            await sendMessage(chatId, "❌ Kon voice note niet opslaan. Probeer opnieuw.");
+          }
+        } catch (error) {
+          await sendMessage(chatId, "❌ Error bij voice note upload.");
+        }
+      }
+
+      // Handle video notes (round videos)
+      if (update.message.video_note) {
+        const videoNote = update.message.video_note;
+        const duration = videoNote.duration;
+        const description = `Video note (${duration}s)`;
+        
+        try {
+          const fileInfo = await getFileInfo(videoNote.file_id);
+          
+          const success = await saveMediaToNotion(
+            chatId,
+            "Video note geupload",
+            description,
+            'Media',
+            'Video Note',
+            fileInfo,
+            'media'
+          );
+
+          if (success) {
+            await sendMessage(chatId, "🎥 Video note opgeslagen in je Notion database!");
+          } else {
+            await sendMessage(chatId, "❌ Kon video note niet opslaan. Probeer opnieuw.");
+          }
+        } catch (error) {
+          await sendMessage(chatId, "❌ Error bij video note upload.");
+        }
+      }
+
+      // Handle documents
+      if (update.message.document) {
+        const document = update.message.document;
+        const fileName = document.file_name || "Document";
+        const fileSize = document.file_size;
+        const description = `${fileName} (${Math.round(fileSize/1024)}KB)`;
+        
+        try {
+          const fileInfo = await getFileInfo(document.file_id);
+          
+          const success = await saveMediaToNotion(
+            chatId,
+            "Document geupload",
+            description,
+            'Media',
+            'Document',
+            fileInfo,
+            'media'
+          );
+
+          if (success) {
+            await sendMessage(chatId, "📄 Document opgeslagen in je Notion database!");
+          } else {
+            await sendMessage(chatId, "❌ Kon document niet opslaan. Probeer opnieuw.");
+          }
+        } catch (error) {
+          await sendMessage(chatId, "❌ Error bij document upload.");
+        }
+      }
+      
+    } else if (update.callback_query) {
+      const chatId = update.callback_query.message.chat.id;
+      const data = update.callback_query.data;
+
+      if (data.startsWith('cat_')) {
+        const category = data.replace('cat_', '');
+        await askRandomQuestion(chatId, category);
+        
+      } else if (data.startsWith('answer_') || data === 'memo_seen') {
+        const session = userSessions.get(chatId);
+        
+        if (!session) {
+          await sendMessage(chatId, "⏰ Je sessie is verlopen. Hier is een nieuwe vraag!");
+          await askRandomQuestion(chatId, 'motivatie');
+          return res.status(200).json({ ok: true });
+        }
+
+        const answer = data.startsWith('answer_') ? data.replace('answer_', '') : 'Gezien';
+
+        // Send to Notion
+        try {
+          const response = await fetch(`${API_URL}/api/trading-journal-v5`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              question: session.question,
+              answer: answer,
+              category: session.category,
+              time_of_day: Date.now() < 43200000 ? 'Morning' : 'Evening',
+              response_type: session.questionType,
+              question_options: session.questionOptions || []
+            })
+          });
+
+          if (response.ok) {
+            await sendMessage(chatId, "✅ Antwoord opgeslagen!");
+          } else {
+            await sendMessage(chatId, "❌ Er ging iets mis bij het opslaan.");
+          }
+        } catch (error) {
+          await sendMessage(chatId, "❌ Kon niet opslaan in database.");
+        }
+
+        // Clear session
+        userSessions.delete(chatId);
+      }
+    }
+
+    return res.status(200).json({ ok: true });
+    
+  } catch (error) {
+    console.error('Webhook error:', error);
+    return res.status(500).json({ error: 'Internal server error' });
+  }
+}
