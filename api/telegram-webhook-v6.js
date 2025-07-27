@@ -474,7 +474,7 @@ function createCategoryKeyboard(filter = null) {
     const meta1 = CATEGORY_META[cat1] || { icon: '❓', description: '' }; // Fallback for safety
     row.push({
       text: meta1.icon + ' ' + cat1.charAt(0).toUpperCase() + cat1.slice(1),
-      callback_ 'cat_' + cat1 // Fixed: no template string issue
+      callback_ 'cat_' + cat1  // Fixed: correct syntax for callback_data
     });
     
     if (i + 1 < categories.length) {
@@ -482,7 +482,7 @@ function createCategoryKeyboard(filter = null) {
       const meta2 = CATEGORY_META[cat2] || { icon: '❓', description: '' };
       row.push({
         text: meta2.icon + ' ' + cat2.charAt(0).toUpperCase() + cat2.slice(1),
-        callback_ 'cat_' + cat2
+        callback_ 'cat_' + cat2  // Fixed: correct syntax for callback_data
       });
     }
     
@@ -497,6 +497,7 @@ function createCategoryKeyboard(filter = null) {
   
   return { inline_keyboard: keyboard };
 }
+
 
 // Ask question with enhanced UI
 async function askQuestion(chatId, category) {
