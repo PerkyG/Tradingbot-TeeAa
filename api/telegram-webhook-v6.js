@@ -91,7 +91,7 @@ class ProgressTracker {
       categoryData.completed = true;
     }
     
-    userProgress.askedQuestions.add(`${category}_${questionIndex}`);
+    userProgress.askedQuestions.add(category + '_' + questionIndex);
     userProgress.lastActivity = Date.now();
     userProgress.totalQuestions++;
   }
@@ -1036,8 +1036,6 @@ async function handleCallbackQuery(callbackQuery) {
     
   } else if (data === 'cancel_reset') {
     await editMessage(chatId, messageId, "❌ *Reset geannuleerd*\n\nJe progress blijft behouden.");
-  } else {
-    console.error('Unknown callback ', data);
   }
 }
 
