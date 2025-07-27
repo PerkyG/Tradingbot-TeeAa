@@ -136,7 +136,7 @@ const SCHEDULE = {
   }
 };
 
-// Alle 85 fine-tuned vragen (volledig, verbeterd met multimedia prompts, balanced options, scoring pts, adaptiviteit)
+// Alle 85 fine-tuned vragen
 const QUESTION_CATEGORIES = {
   motivatie: [  // 8 vragen
     { question: "Waarom trade je vandaag? Kies je motivatie en deel optioneel een voice note met waarom.", type: "multiple_choice", options: ["Familie onderhouden (5 pts)", "Toekomst opbouwen (4 pts)", "Thea trots maken (4 pts)", "Uit verveling (2 pts)", "Ander (specificeer, 3 pts)"], excludeFromScoring: false },
@@ -293,7 +293,7 @@ const QUESTION_CATEGORIES = {
   ]
 };
 
-// Category metadata (nu matchend met alle categorieën)
+// Category metadata
 const CATEGORY_META = {
   motivatie: { icon: "🎯", description: "Waarom doe je dit?" },
   doelen: { icon: "📋", description: "Wat wil je bereiken?" },
@@ -304,15 +304,9 @@ const CATEGORY_META = {
   discipline: { icon: "💪", description: "Volg je je regels?" },
   risico: { icon: "⚠️", description: "Wat kan er mis gaan?" },
   performance: { icon: "📊", description: "Hoe presteer je?" },
-  inzichten: { icon: "💡", description: "Welke wijsheid pak je op?" },
   reflectie: { icon: "🔍", description: "Wat leer je?" },
   ontwikkeling: { icon: "🌱", description: "Groei je als persoon?" },
-  trades: { icon: "💹", description: "Je trades vandaag" },
-  leren: { icon: "📚", description: "Wat leer je?" },
-  gezondheid: { icon: "🍏", description: "Je gezondheid" },
-  relaties: { icon: "👥", description: "Je relaties" },
-  avond: { icon: "🌙", description: "Avond reflectie" },
-  memo: { icon: "📝", description: "Memo's" }
+  inzichten: { icon: "💡", description: "Welke wijsheid pak je op?" }
 };
 
 // Telegram API helpers
@@ -346,7 +340,6 @@ async function sendMessage(chatId, text, options = {}) {
     return result;
   } catch (error) {
     console.error('Error sending message:', error);
-    // Notify admin if configured
     if (ADMIN_CHAT_ID && chatId !== ADMIN_CHAT_ID) {
       await notifyAdmin(`Error sending message to ${chatId}: ${error.message}`);
     }
@@ -468,7 +461,7 @@ function getCurrentCategories() {
   return Object.keys(QUESTION_CATEGORIES);
 }
 
-// Create category keyboard
+// Create category keyboard (fixed syntax)
 function createCategoryKeyboard(filter = null) {
   const categories = filter || getCurrentCategories();
   const keyboard = [];
@@ -478,18 +471,18 @@ function createCategoryKeyboard(filter = null) {
     const row = [];
     
     const cat1 = categories[i];
-    const meta1 = CATEGORY_META[cat1];
+    const meta1 = CATEGORY_META[cat1] || { icon: '❓', description: '' }; // Fallback for safety
     row.push({
-      text: `${meta1.icon} ${cat1.charAt(0).toUpperCase() + cat1.slice(1)}`,
-      callback_ `cat_${cat1}`
+      text: meta1.icon + ' ' + cat1.charAt(0).toUpperCase() + cat1.slice(1),
+      callback_ 'cat_' + cat1 // Fixed: no template string issue
     });
     
     if (i + 1 < categories.length) {
       const cat2 = categories[i + 1];
-      const meta2 = CATEGORY_META[cat2];
+      const meta2 = CATEGORY_META[cat2] || { icon: '❓', description: '' };
       row.push({
-        text: `${meta2.icon} ${cat2.charAt(0).toUpperCase() + cat2.slice(1)}`,
-        callback_ `cat_${cat2}`
+        text: meta2.icon + ' ' + cat2.charAt(0).toUpperCase() + cat2.slice(1),
+        callback_ 'cat_' + cat2
       });
     }
     
@@ -526,10 +519,10 @@ async function askQuestion(chatId, category) {
   });
 
   // Build message
-  const meta = CATEGORY_META[category];
-  let messageText = `${meta.icon} *${category.toUpperCase()}*\n`;
-  messageText += `_${meta.description}_\n\n`;
-  messageText += `📝 ${question.question}`;
+  const meta = CATEGORY_META[category] || { icon: '❓', description: '' };
+  let messageText = meta.icon + ' *' + category.toUpperCase() + '*\n';
+  messageText += '_' + meta.description + '_\n\n';
+  messageText += '📝 ' + question.question;
 
   // Build keyboard
   let keyboard = null;
@@ -537,7 +530,7 @@ async function askQuestion(chatId, category) {
   if (question.type === 'multiple_choice' && question.options.length > 0) {
     const buttons = question.options.map((option, index) => [{
       text: option,
-      callback_ `answer_${index}_${option.substring(0, 20)}`
+      callback_ 'answer_' + index + '_' + option.substring(0, 20)
     }]);
     
     // Add skip option
@@ -605,18 +598,18 @@ function formatProgress(progress) {
   let totalQuestions = 0;
   
   Object.entries(categories).forEach(([category, data]) => {
-    const meta = CATEGORY_META[category];
+    const meta = CATEGORY_META[category] || { icon: '❓' };
     const percentage = Math.round((data.askedQuestions.size / data.totalQuestions) * 100);
     
     totalAsked += data.askedQuestions.size;
     totalQuestions += data.totalQuestions;
     
-    message += `${meta.icon} *${category}*: ${data.askedQuestions.size}/${data.totalQuestions} (${percentage}%)\n`;
+    message += meta.icon + ' *' + category + '*: ' + data.askedQuestions.size + '/' + data.totalQuestions + ' (' + percentage + '%)\n';
     
     if (data.completed) {
-      message += `   └ ✅ Compleet!\n`;
+      message += '   └ ✅ Compleet!\n';
     } else if (data.askedQuestions.size > 0) {
-      message += `   └ ${data.totalQuestions - data.askedQuestions.size} vragen over\n`;
+      message += '   └ ' + (data.totalQuestions - data.askedQuestions.size) + ' vragen over\n';
     }
     message += "\n";
   });
@@ -630,7 +623,6 @@ function formatProgress(progress) {
 
 // Main webhook handler
 export default async function handler(req, res) {
-  // Set response headers
   res.setHeader('Content-Type', 'application/json');
   
   if (req.method !== 'POST') {
@@ -640,7 +632,6 @@ export default async function handler(req, res) {
   try {
     const update = req.body;
     
-    // Handle different update types
     if (update.message) {
       await handleMessage(update.message);
     } else if (update.callback_query) {
@@ -652,7 +643,7 @@ export default async function handler(req, res) {
   } catch (error) {
     console.error('Webhook error:', error);
     await notifyAdmin(`Webhook error: ${error.message}`);
-    return res.status(200).json({ ok: true }); // Return 200 to prevent Telegram retries
+    return res.status(200).json({ ok: true });
   }
 }
 
@@ -661,19 +652,16 @@ async function handleMessage(message) {
   const chatId = message.chat.id;
   const messageId = message.message_id;
   
-  // Handle commands
   if (message.text && message.text.startsWith('/')) {
     await handleCommand(chatId, message.text, messageId);
     return;
   }
   
-  // Handle media
   if (message.photo || message.voice || message.video_note || message.document) {
     await handleMedia(chatId, message);
     return;
   }
   
-  // Handle text responses to questions
   if (message.text) {
     await handleTextResponse(chatId, message.text);
     return;
@@ -749,7 +737,6 @@ _"Less is more. Be a lion. Today A King."_ 🦁`;
 
   await sendMessage(chatId, welcomeText);
   
-  // Stuur direct het menu
   setTimeout(() => sendMenu(chatId), 1000);
 }
 
@@ -812,7 +799,6 @@ async function showProgress(chatId) {
 async function showStatistics(chatId) {
   await sendTypingAction(chatId);
   
-  // Haal vandaag's entries op via API
   try {
     const response = await fetch(`${API_URL}/api/get-daily-stats?chatId=${chatId}`);
     const stats = await response.json();
@@ -835,7 +821,6 @@ async function showStatistics(chatId) {
     
     await sendMessage(chatId, message);
   } catch (error) {
-    console.error('Error fetching stats:', error);
     await sendMessage(chatId, "❌ Kon statistieken niet ophalen. Probeer later opnieuw.");
   }
 }
@@ -1005,7 +990,6 @@ async function handleMedia(chatId, message) {
       throw new Error(result.error);
     }
   } catch (error) {
-    console.error('Error handling media:', error);
     await sendMessage(chatId, 
       `❌ Kon ${mediaType.toLowerCase()} niet opslaan.\n` +
       `Error: ${error.message}`
@@ -1048,4 +1032,110 @@ async function handleCallbackQuery(callbackQuery) {
     
   } else if (data === 'confirm_reset') {
     progressTracker.resetAll(chatId);
-    await editMessage(chatId, messageId, "✅ *Progress gereset!*\
+    await editMessage(chatId, messageId, "✅ *Progress gereset!*\n\nAlle vragen zijn weer beschikbaar.");
+    
+  } else if (data === 'cancel_reset') {
+    await editMessage(chatId, messageId, "❌ *Reset geannuleerd*\n\nJe progress blijft behouden.");
+  }
+}
+
+// Handle answer callback
+async function handleAnswerCallback(chatId, messageId, data) {
+  const session = sessionManager.get(chatId);
+  
+  if (!session) {
+    await editMessage(chatId, messageId, 
+      "⏰ *Sessie verlopen*\n\n" +
+      "Deze vraag is verlopen. Gebruik /menu voor een nieuwe vraag."
+    );
+    return;
+  }
+  
+  // Parse answer from callback data
+  const parts = data.split('_');
+  const answerIndex = parseInt(parts[1]);
+  const answer = session.questionOptions[answerIndex] || parts.slice(2).join('_');
+  
+  // Save to Notion
+  const notionData = {
+    question: session.question,
+    answer: answer,
+    category: session.category,
+    time_of_day: new Date().getHours() < 12 ? 'Morning' : 'Evening',
+    response_type: session.questionType,
+    question_options: session.questionOptions
+  };
+  
+  const result = await saveToNotion(notionData);
+  
+  if (result.success) {
+    const responseData = result.data.data;
+    await editMessage(chatId, messageId,
+      `✅ *Antwoord opgeslagen!*\n\n` +
+      `❓ ${session.question}\n` +
+      `💬 ${answer}\n\n` +
+      `🎨 Kleur: ${responseData.color_assigned}\n` +
+      `📊 Daily Score: ${responseData.daily_score}/100\n\n` +
+      `_Gebruik /menu voor de volgende vraag_`
+    );
+  } else {
+    await editMessage(chatId, messageId,
+      `❌ *Opslaan mislukt*\n\n` +
+      `Error: ${result.error}\n\n` +
+      `_Probeer het later opnieuw_`
+    );
+  }
+  
+  sessionManager.delete(chatId);
+}
+
+// Handle memo seen
+async function handleMemoSeen(chatId, messageId) {
+  const session = sessionManager.get(chatId);
+  
+  if (!session) {
+    await editMessage(chatId, messageId, "⏰ Sessie verlopen");
+    return;
+  }
+  
+  const data = {
+    question: session.question,
+    answer: '✅ Gezien',
+    category: session.category,
+    time_of_day: new Date().getHours() < 12 ? 'Morning' : 'Evening',
+    response_type: 'memo'
+  };
+  
+  const result = await saveToNotion(data);
+  
+  if (result.success) {
+    await editMessage(chatId, messageId,
+      `✅ *Memo gemarkeerd als gezien*\n\n` +
+      `"${session.question}"\n\n` +
+      `_Good reminder! 🦁_`
+    );
+  }
+  
+  sessionManager.delete(chatId);
+}
+
+// Handle skip question
+async function handleSkipQuestion(chatId, messageId) {
+  const session = sessionManager.get(chatId);
+  
+  if (!session) {
+    await editMessage(chatId, messageId, "⏰ Sessie verlopen");
+    return;
+  }
+  
+  // Markeer als skipped (optioneel: log in progress)
+  progressTracker.markQuestionAsked(chatId, session.category, session.questionIndex); // Of custom skip logic
+  
+  await editMessage(chatId, messageId,
+    `⏭️ *Vraag geskipped!*\n\n` +
+    `"${session.question}"\n\n` +
+    `_Gebruik /menu voor een nieuwe vraag_`
+  );
+  
+  sessionManager.delete(chatId);
+}
