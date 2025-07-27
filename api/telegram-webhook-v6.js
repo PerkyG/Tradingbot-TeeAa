@@ -304,9 +304,9 @@ const CATEGORY_META = {
   discipline: { icon: "💪", description: "Volg je je regels?" },
   risico: { icon: "⚠️", description: "Wat kan er mis gaan?" },
   performance: { icon: "📊", description: "Hoe presteer je?" },
+  inzichten: { icon: "💡", description: "Welke wijsheid pak je op?" },
   reflectie: { icon: "🔍", description: "Wat leer je?" },
-  ontwikkeling: { icon: "🌱", description: "Groei je als persoon?" },
-  inzichten: { icon: "💡", description: "Welke wijsheid pak je op?" }
+  ontwikkeling: { icon: "🌱", description: "Groei je als persoon?" }
 };
 
 // Telegram API helpers
@@ -1036,6 +1036,8 @@ async function handleCallbackQuery(callbackQuery) {
     
   } else if (data === 'cancel_reset') {
     await editMessage(chatId, messageId, "❌ *Reset geannuleerd*\n\nJe progress blijft behouden.");
+  } else {
+    console.error('Unknown callback ', data);
   }
 }
 
@@ -1128,8 +1130,8 @@ async function handleSkipQuestion(chatId, messageId) {
     return;
   }
   
-  // Markeer als skipped (optioneel: log in progress)
-  progressTracker.markQuestionAsked(chatId, session.category, session.questionIndex); // Of custom skip logic
+  // Markeer als skipped
+  progressTracker.markQuestionAsked(chatId, session.category, session.questionIndex);
   
   await editMessage(chatId, messageId,
     `⏭️ *Vraag geskipped!*\n\n` +
