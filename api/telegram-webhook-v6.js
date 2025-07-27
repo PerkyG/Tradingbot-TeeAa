@@ -136,7 +136,7 @@ const SCHEDULE = {
   }
 };
 
-// Alle 85 fine-tuned vragen (volledig, met alle categorieën, verbeterd met multimedia en scoring)
+// Alle 85 fine-tuned vragen (volledig, verbeterd met multimedia prompts, balanced options, scoring pts, adaptiviteit)
 const QUESTION_CATEGORIES = {
   motivatie: [  // 8 vragen
     { question: "Waarom trade je vandaag? Kies je motivatie en deel optioneel een voice note met waarom.", type: "multiple_choice", options: ["Familie onderhouden (5 pts)", "Toekomst opbouwen (4 pts)", "Thea trots maken (4 pts)", "Uit verveling (2 pts)", "Ander (specificeer, 3 pts)"], excludeFromScoring: false },
@@ -247,7 +247,7 @@ const QUESTION_CATEGORIES = {
     { question: "Memo: Blijf positief. Voice?", type: "memo", excludeFromScoring: true },
     { question: "Memo: Leer van trades.", type: "memo", excludeFromScoring: true }
   ],
-  marktanalyse: [  // 6 vragen (toegevoegd, verbeterd)
+  marktanalyse: [  // 6 vragen
     { question: "Hoe staat de markt vandaag? Deel een screenshot.", type: "open", excludeFromScoring: true },
     { question: "Trend analyse: Bullish of bearish? Voice uitleg.", type: "multiple_choice", options: ["Bullish (5 pts)", "Bearish (3 pts)", "Neutraal (4 pts)", "Ander"], excludeFromScoring: false },
     { question: "Key indicators gecheckt? Upload grafiek.", type: "open", excludeFromScoring: false },
@@ -255,7 +255,7 @@ const QUESTION_CATEGORIES = {
     { question: "Nieuws impact? Deel insight.", type: "open", excludeFromScoring: false },
     { question: "Memo: Analyseer markt. Photo?", type: "memo", excludeFromScoring: true }
   ],
-  strategie: [  // 6 vragen (toegevoegd)
+  strategie: [  // 6 vragen
     { question: "Wat is je trading strategie? Upload plan foto.", type: "open", excludeFromScoring: false },
     { question: "Volg je een specifieke methode? Kies en leg uit.", type: "multiple_choice", options: ["Scalping (4 pts)", "Day trading (5 pts)", "Swing (3 pts)", "Ander"], excludeFromScoring: false },
     { question: "Strategie aanpassing nodig? Voice note.", type: "open", excludeFromScoring: false },
@@ -263,28 +263,28 @@ const QUESTION_CATEGORIES = {
     { question: "Backtest resultaten? Upload data.", type: "open", excludeFromScoring: false },
     { question: "Memo: Stick to strategy. Voice?", type: "memo", excludeFromScoring: true }
   ],
-  risico: [  // 5 vragen (toegevoegd)
+  risico: [  // 5 vragen
     { question: "Risico assessment: Hoog of laag? Voice note.", type: "multiple_choice", options: ["Laag (5 pts)", "Hoog (1 pt)", "Middel (3 pts)"], excludeFromScoring: false },
     { question: "Stop-loss gezet? Deel setup photo.", type: "open", excludeFromScoring: false },
     { question: "Risico-reward ratio? Bereken en leg uit.", type: "multiple_choice", options: ["Goed (5 pts)", "Slecht (1 pt)"], excludeFromScoring: false },
     { question: "Potentiële risks? List via voice.", type: "open", excludeFromScoring: false },
     { question: "Memo: Manage risico. Photo?", type: "memo", excludeFromScoring: true }
   ],
-  performance: [  // 5 vragen (toegevoegd)
+  performance: [  // 5 vragen
     { question: "Hoe presteer je? Deel metrics screenshot.", type: "open", excludeFromScoring: false },
     { question: "Win rate vandaag? Schaal met voice.", type: "multiple_choice", options: ["Hoog (5 pts)", "Laag (1 pt)"], excludeFromScoring: false },
     { question: "Performance review? Insights.", type: "open", excludeFromScoring: false },
     { question: "Vergelijking met gisteren? Photo.", type: "multiple_choice", options: ["Beter (5 pts)", "Slechter (1 pt)"], excludeFromScoring: false },
     { question: "Memo: Track performance. Voice?", type: "memo", excludeFromScoring: true }
   ],
-  inzichten: [  // 5 vragen (toegevoegd)
+  inzichten: [  // 5 vragen
     { question: "Welke inzichten vandaag? Spreek in via voice.", type: "open", excludeFromScoring: false },
     { question: "Nieuw inzicht over markt? Deel photo.", type: "open", excludeFromScoring: false },
-    { question: "Lessen uit trades? Multiple choice.", type: "multiple_choice", options: ["Veel (5 pts)", "Weinig (1 pt)"], excludeFromScoring: false },
+    { question: "Lessen uit trades? Kies.", type: "multiple_choice", options: ["Veel (5 pts)", "Weinig (1 pt)"], excludeFromScoring: false },
     { question: "Inzicht memo: Noteer ze.", type: "memo", excludeFromScoring: true },
     { question: "Toekomstig inzicht? Voice plan.", type: "open", excludeFromScoring: false }
   ],
-  ontwikkeling: [  // 5 vragen (toegevoegd)
+  ontwikkeling: [  // 5 vragen
     { question: "Hoe groei je als trader? Reflecteer met photo.", type: "open", excludeFromScoring: false },
     { question: "Nieuwe skills geleerd? Deel via voice.", type: "multiple_choice", options: ["Ja (5 pts)", "Nee (1 pt)"], excludeFromScoring: false },
     { question: "Ontwikkeling doel? Plan upload.", type: "open", excludeFromScoring: false },
@@ -293,7 +293,7 @@ const QUESTION_CATEGORIES = {
   ]
 };
 
-// Category metadata (matcht nu met QUESTION_CATEGORIES)
+// Category metadata (nu matchend met alle categorieën)
 const CATEGORY_META = {
   motivatie: { icon: "🎯", description: "Waarom doe je dit?" },
   doelen: { icon: "📋", description: "Wat wil je bereiken?" },
@@ -315,7 +315,7 @@ const CATEGORY_META = {
   memo: { icon: "📝", description: "Memo's" }
 };
 
-// Telegram API helpers (onveranderd, maar met extra logging)
+// Telegram API helpers
 async function sendMessage(chatId, text, options = {}) {
   try {
     const url = `https://api.telegram.org/bot${TELEGRAM_TOKEN}/sendMessage`;
@@ -346,6 +346,7 @@ async function sendMessage(chatId, text, options = {}) {
     return result;
   } catch (error) {
     console.error('Error sending message:', error);
+    // Notify admin if configured
     if (ADMIN_CHAT_ID && chatId !== ADMIN_CHAT_ID) {
       await notifyAdmin(`Error sending message to ${chatId}: ${error.message}`);
     }
@@ -353,21 +354,78 @@ async function sendMessage(chatId, text, options = {}) {
   }
 }
 
-// ... (de rest van de helpers: editMessage, sendTypingAction, getFileInfo, notifyAdmin – onveranderd)
+async function editMessage(chatId, messageId, text, options = {}) {
+  try {
+    const url = `https://api.telegram.org/bot${TELEGRAM_TOKEN}/editMessageText`;
+    
+    const payload = {
+      chat_id: chatId,
+      message_id: messageId,
+      text: text,
+      parse_mode: 'Markdown',
+      ...options
+    };
 
-// Smart question selection (met extra error check)
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(payload)
+    });
+
+    return response.json();
+  } catch (error) {
+    console.error('Error editing message:', error);
+    return null;
+  }
+}
+
+async function sendTypingAction(chatId) {
+  const url = `https://api.telegram.org/bot${TELEGRAM_TOKEN}/sendChatAction`;
+  await fetch(url, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      chat_id: chatId,
+      action: 'typing'
+    })
+  });
+}
+
+async function getFileInfo(fileId) {
+  const url = `https://api.telegram.org/bot${TELEGRAM_TOKEN}/getFile?file_id=${fileId}`;
+  const response = await fetch(url);
+  const data = await response.json();
+  
+  if (!data.ok) {
+    throw new Error('Failed to get file info');
+  }
+  
+  return data;
+}
+
+async function notifyAdmin(message) {
+  if (!ADMIN_CHAT_ID) return;
+  
+  try {
+    await sendMessage(ADMIN_CHAT_ID, `🚨 *Bot Alert*\n\n${message}`);
+  } catch (error) {
+    console.error('Failed to notify admin:', error);
+  }
+}
+
+// Smart question selection
 function getSmartQuestion(chatId, category) {
   progressTracker.initUser(chatId);
   
   const questions = QUESTION_CATEGORIES[category];
-  if (!questions || questions.length === 0) {
-    console.error(`Category not found: ${category}`);
-    return null;
-  }
+  if (!questions || questions.length === 0) return null;
 
   const progress = progressTracker.getProgress(chatId);
   const categoryData = progress.categories[category];
   
+  // Filter beschikbare vragen
   const availableIndices = [];
   for (let i = 0; i < questions.length; i++) {
     if (!categoryData.askedQuestions.has(i)) {
@@ -378,12 +436,15 @@ function getSmartQuestion(chatId, category) {
   let selectedIndex;
   
   if (availableIndices.length === 0) {
+    // Reset category als alle vragen gesteld zijn
     progressTracker.resetCategory(chatId, category);
     selectedIndex = Math.floor(Math.random() * questions.length);
   } else {
+    // Kies willekeurig uit beschikbare vragen
     selectedIndex = availableIndices[Math.floor(Math.random() * availableIndices.length)];
   }
 
+  // Markeer als gesteld
   progressTracker.markQuestionAsked(chatId, category, selectedIndex);
 
   return {
@@ -393,25 +454,598 @@ function getSmartQuestion(chatId, category) {
   };
 }
 
-// ... (de rest van de functies: getCurrentCategories, createCategoryKeyboard, askQuestion, saveToNotion, formatProgress, handler, handleMessage, handleCommand, sendWelcomeMessage, sendMenu, testAPI, showProgress, showStatistics, confirmReset, sendHelpMessage, handleTextResponse, handleMedia, handleCallbackQuery, handleAnswerCallback, handleMemoSeen)
-
-// Gefixte handleSkipQuestion (gecompleteerd)
-async function handleSkipQuestion(chatId, messageId) {
-  const session = sessionManager.get(chatId);
+// Get current appropriate categories
+function getCurrentCategories() {
+  const hour = new Date().getHours();
   
-  if (!session) {
-    await editMessage(chatId, messageId, "⏰ Sessie verlopen");
+  if (hour >= SCHEDULE.MORNING.start && hour < SCHEDULE.MORNING.end) {
+    return SCHEDULE.MORNING.categories;
+  } else if (hour >= SCHEDULE.EVENING.start && hour <= SCHEDULE.EVENING.end) {
+    return SCHEDULE.EVENING.categories;
+  }
+  
+  // Default: alle categorieën
+  return Object.keys(QUESTION_CATEGORIES);
+}
+
+// Create category keyboard
+function createCategoryKeyboard(filter = null) {
+  const categories = filter || getCurrentCategories();
+  const keyboard = [];
+  
+  // Maak rows van 2 buttons
+  for (let i = 0; i < categories.length; i += 2) {
+    const row = [];
+    
+    const cat1 = categories[i];
+    const meta1 = CATEGORY_META[cat1];
+    row.push({
+      text: `${meta1.icon} ${cat1.charAt(0).toUpperCase() + cat1.slice(1)}`,
+      callback_ `cat_${cat1}`
+    });
+    
+    if (i + 1 < categories.length) {
+      const cat2 = categories[i + 1];
+      const meta2 = CATEGORY_META[cat2];
+      row.push({
+        text: `${meta2.icon} ${cat2.charAt(0).toUpperCase() + cat2.slice(1)}`,
+        callback_ `cat_${cat2}`
+      });
+    }
+    
+    keyboard.push(row);
+  }
+  
+  // Voeg extra opties toe
+  keyboard.push([
+    { text: "📊 Progress", callback_ "show_progress" },
+    { text: "🔄 Reset", callback_ "reset_progress" }
+  ]);
+  
+  return { inline_keyboard: keyboard };
+}
+
+// Ask question with enhanced UI
+async function askQuestion(chatId, category) {
+  await sendTypingAction(chatId);
+  
+  const question = getSmartQuestion(chatId, category);
+  
+  if (!question) {
+    await sendMessage(chatId, "❌ Sorry, ik ken deze categorie niet. Gebruik /menu voor beschikbare opties.");
+    return;
+  }
+
+  // Store session
+  sessionManager.set(chatId, {
+    question: question.question,
+    category: category,
+    questionType: question.type,
+    questionOptions: question.options || [],
+    questionIndex: question.index
+  });
+
+  // Build message
+  const meta = CATEGORY_META[category];
+  let messageText = `${meta.icon} *${category.toUpperCase()}*\n`;
+  messageText += `_${meta.description}_\n\n`;
+  messageText += `📝 ${question.question}`;
+
+  // Build keyboard
+  let keyboard = null;
+  
+  if (question.type === 'multiple_choice' && question.options.length > 0) {
+    const buttons = question.options.map((option, index) => [{
+      text: option,
+      callback_ `answer_${index}_${option.substring(0, 20)}`
+    }]);
+    
+    // Add skip option
+    buttons.push([{
+      text: "⏭️ Skip deze vraag",
+      callback_ "skip_question"
+    }]);
+    
+    keyboard = { inline_keyboard: buttons };
+    
+  } else if (question.type === 'memo') {
+    keyboard = {
+      inline_keyboard: [[
+        { text: "✅ Gezien", callback_ "memo_seen" }
+      ]]
+    };
+    
+  } else if (question.type === 'open') {
+    messageText += "\n\n💬 _Typ je antwoord of stuur een voice note_";
+  }
+
+  await sendMessage(chatId, messageText, keyboard ? { reply_markup: keyboard } : {});
+}
+
+// Save to Notion with retry logic
+async function saveToNotion(data, retries = 3) {
+  for (let i = 0; i < retries; i++) {
+    try {
+      const response = await fetch(`${API_URL}/api/trading-journal-v7`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data)
+      });
+
+      const result = await response.json();
+      
+      if (response.ok) {
+        return { success: true,  result };
+      } else {
+        console.error(`Notion save failed (attempt ${i + 1}):`, result);
+        if (i === retries - 1) {
+          return { success: false, error: result.error || 'Unknown error' };
+        }
+      }
+    } catch (error) {
+      console.error(`Network error (attempt ${i + 1}):`, error);
+      if (i === retries - 1) {
+        return { success: false, error: error.message };
+      }
+    }
+    
+    // Wait before retry
+    await new Promise(resolve => setTimeout(resolve, 1000 * (i + 1)));
+  }
+}
+
+// Format progress message
+function formatProgress(progress) {
+  let message = "📊 *Jouw Vraag Progress*\n\n";
+  
+  const categories = progress.categories;
+  let totalAsked = 0;
+  let totalQuestions = 0;
+  
+  Object.entries(categories).forEach(([category, data]) => {
+    const meta = CATEGORY_META[category];
+    const percentage = Math.round((data.askedQuestions.size / data.totalQuestions) * 100);
+    
+    totalAsked += data.askedQuestions.size;
+    totalQuestions += data.totalQuestions;
+    
+    message += `${meta.icon} *${category}*: ${data.askedQuestions.size}/${data.totalQuestions} (${percentage}%)\n`;
+    
+    if (data.completed) {
+      message += `   └ ✅ Compleet!\n`;
+    } else if (data.askedQuestions.size > 0) {
+      message += `   └ ${data.totalQuestions - data.askedQuestions.size} vragen over\n`;
+    }
+    message += "\n";
+  });
+  
+  const totalPercentage = Math.round((totalAsked / totalQuestions) * 100);
+  message += `📈 *Totaal*: ${totalAsked}/${totalQuestions} (${totalPercentage}%)\n\n`;
+  message += `💡 _Tip: Vragen worden niet herhaald tot alle vragen in een categorie zijn gesteld!_`;
+  
+  return message;
+}
+
+// Main webhook handler
+export default async function handler(req, res) {
+  // Set response headers
+  res.setHeader('Content-Type', 'application/json');
+  
+  if (req.method !== 'POST') {
+    return res.status(405).json({ error: 'Method not allowed' });
+  }
+
+  try {
+    const update = req.body;
+    
+    // Handle different update types
+    if (update.message) {
+      await handleMessage(update.message);
+    } else if (update.callback_query) {
+      await handleCallbackQuery(update.callback_query);
+    }
+
+    return res.status(200).json({ ok: true });
+    
+  } catch (error) {
+    console.error('Webhook error:', error);
+    await notifyAdmin(`Webhook error: ${error.message}`);
+    return res.status(200).json({ ok: true }); // Return 200 to prevent Telegram retries
+  }
+}
+
+// Handle regular messages
+async function handleMessage(message) {
+  const chatId = message.chat.id;
+  const messageId = message.message_id;
+  
+  // Handle commands
+  if (message.text && message.text.startsWith('/')) {
+    await handleCommand(chatId, message.text, messageId);
     return;
   }
   
-  // Markeer als skipped en update progress (optioneel: geen scoring)
-  progressTracker.markQuestionAsked(chatId, session.category, session.questionIndex);
+  // Handle media
+  if (message.photo || message.voice || message.video_note || message.document) {
+    await handleMedia(chatId, message);
+    return;
+  }
   
-  await editMessage(chatId, messageId,
-    `⏭️ *Vraag geskipped!*\n\n` +
-    `"${session.question}"\n\n` +
-    `_Gebruik /menu voor een nieuwe vraag_`
+  // Handle text responses to questions
+  if (message.text) {
+    await handleTextResponse(chatId, message.text);
+    return;
+  }
+}
+
+// Handle commands
+async function handleCommand(chatId, command, messageId) {
+  switch (command) {
+    case '/start':
+      await sendWelcomeMessage(chatId);
+      break;
+      
+    case '/menu':
+      await sendMenu(chatId);
+      break;
+      
+    case '/test':
+      await testAPI(chatId);
+      break;
+      
+    case '/progress':
+      await showProgress(chatId);
+      break;
+      
+    case '/reset':
+      await confirmReset(chatId);
+      break;
+      
+    case '/help':
+      await sendHelpMessage(chatId);
+      break;
+      
+    case '/stats':
+      await showStatistics(chatId);
+      break;
+      
+    default:
+      await sendMessage(chatId, "❓ Onbekend commando. Gebruik /help voor alle commando's.");
+  }
+}
+
+// Send welcome message
+async function sendWelcomeMessage(chatId) {
+  const welcomeText = `🦁 *Welkom bij je Trading Journal Bot!*
+
+_"Today A King..."_ 👑
+
+*Wat kan deze bot?*
+• 📝 85+ fine-tuned trading vragen
+• 🎯 12 categorieën voor complete zelfreflectie
+• 📸 Media support (foto's, voice notes, documenten)
+• 📊 Automatische kleur scoring
+• 💯 Daily performance tracking
+• 🔄 Slimme vraag rotatie (geen dubbele vragen)
+
+*Commando's:*
+/menu - Hoofdmenu met categorieën
+/progress - Bekijk je voortgang
+/stats - Zie je statistieken
+/test - Test de Notion connectie
+/reset - Reset je progress
+/help - Alle informatie
+
+*Pro Tips:*
+• 🌅 's Ochtends: Focus op voorbereiding & strategie
+• 🌙 's Avonds: Focus op reflectie & ontwikkeling
+• 📸 Stuur screenshots van je trades
+• 🎙️ Voice notes voor snelle gedachten
+• 📄 Upload trade logs als documenten
+
+_"Less is more. Be a lion. Today A King."_ 🦁`;
+
+  await sendMessage(chatId, welcomeText);
+  
+  // Stuur direct het menu
+  setTimeout(() => sendMenu(chatId), 1000);
+}
+
+// Send menu
+async function sendMenu(chatId) {
+  const hour = new Date().getHours();
+  let menuText = "🎯 *Kies een categorie:*\n\n";
+  
+  if (hour >= SCHEDULE.MORNING.start && hour < SCHEDULE.MORNING.end) {
+    menuText += "🌅 _Goedemorgen! Focus categorieën voor de ochtend._\n\n";
+  } else if (hour >= SCHEDULE.EVENING.start && hour <= SCHEDULE.EVENING.end) {
+    menuText += "🌙 _Goedenavond! Tijd voor reflectie._\n\n";
+  }
+  
+  menuText += "💡 _Tip: Stuur ook gewoon een foto, voice note of document!_";
+  
+  const keyboard = createCategoryKeyboard();
+  await sendMessage(chatId, menuText, { reply_markup: keyboard });
+}
+
+// Test API connection
+async function testAPI(chatId) {
+  await sendTypingAction(chatId);
+  
+  const testData = {
+    question: 'API Test - Complete Trading Bot v6',
+    answer: 'Test succesvol uitgevoerd',
+    category: 'Test',
+    time_of_day: new Date().getHours() < 12 ? 'Morning' : 'Evening',
+    response_type: 'Text'
+  };
+  
+  const result = await saveToNotion(testData);
+  
+  if (result.success) {
+    await sendMessage(chatId, 
+      "✅ *API Test Succesvol!*\n\n" +
+      `📊 Daily Score: ${result.data.data.daily_score}\n` +
+      `🎨 Kleur: ${result.data.data.color_assigned}\n` +
+      `📝 Notion ID: \`${result.data.data.notion_id}\`\n\n` +
+      "_Alles werkt perfect!_"
+    );
+  } else {
+    await sendMessage(chatId, 
+      "❌ *API Test Gefaald*\n\n" +
+      `Error: ${result.error}\n\n` +
+      "_Check de logs of contacteer support._"
+    );
+  }
+}
+
+// Show progress
+async function showProgress(chatId) {
+  const progress = progressTracker.getProgress(chatId);
+  const message = formatProgress(progress);
+  await sendMessage(chatId, message);
+}
+
+// Show statistics
+async function showStatistics(chatId) {
+  await sendTypingAction(chatId);
+  
+  // Haal vandaag's entries op via API
+  try {
+    const response = await fetch(`${API_URL}/api/get-daily-stats?chatId=${chatId}`);
+    const stats = await response.json();
+    
+    let message = "📊 *Jouw Trading Statistieken*\n\n";
+    message += `📅 *Vandaag:*\n`;
+    message += `• Entries: ${stats.todayEntries || 0}\n`;
+    message += `• Daily Score: ${stats.dailyScore || 0}/100\n`;
+    message += `• Gem. Score: ${stats.averageScore || 0}\n\n`;
+    
+    message += `📈 *Deze Week:*\n`;
+    message += `• Totaal Entries: ${stats.weekEntries || 0}\n`;
+    message += `• Gem. Daily Score: ${stats.weekAvgScore || 0}\n`;
+    message += `• Beste Dag: ${stats.bestDay || 'N/A'}\n\n`;
+    
+    message += `🏆 *All-Time:*\n`;
+    message += `• Totaal Entries: ${stats.totalEntries || 0}\n`;
+    message += `• Trading Dagen: ${stats.tradingDays || 0}\n`;
+    message += `• Hoogste Score: ${stats.highestScore || 0}\n`;
+    
+    await sendMessage(chatId, message);
+  } catch (error) {
+    console.error('Error fetching stats:', error);
+    await sendMessage(chatId, "❌ Kon statistieken niet ophalen. Probeer later opnieuw.");
+  }
+}
+
+// Confirm reset
+async function confirmReset(chatId) {
+  const keyboard = {
+    inline_keyboard: [[
+      { text: "✅ Ja, reset alles", callback_ "confirm_reset" },
+      { text: "❌ Annuleer", callback_ "cancel_reset" }
+    ]]
+  };
+  
+  await sendMessage(chatId, 
+    "⚠️ *Weet je het zeker?*\n\n" +
+    "Dit reset al je vraag progress. Je Notion data blijft bewaard.",
+    { reply_markup: keyboard }
   );
+}
+
+// Send help message
+async function sendHelpMessage(chatId) {
+  const helpText = `📚 *Help & Informatie*
+
+*Basis Gebruik:*
+1. Gebruik /menu om een categorie te kiezen
+2. Beantwoord de vraag met de knoppen of typ een antwoord
+3. Stuur media (foto's, voice notes, docs) op elk moment
+
+*Commando's:*
+• /menu - Toon categorieën menu
+• /progress - Bekijk welke vragen je hebt gehad
+• /stats - Zie je trading statistieken
+• /test - Test de database connectie
+• /reset - Reset je vraag progress
+• /help - Deze hulp informatie
+
+*Media Types:*
+• 📸 Foto's - Screenshots van charts, setups
+• 🎙️ Voice Notes - Snelle gedachten opnemen
+• 🎥 Video Notes - Korte video's
+• 📄 Documenten - Trade logs, Excel files
+
+*Kleur Scoring:*
+• 🟢 Groen = Excellent (5 punten)
+• 🟡 Geel = Neutraal (3 punten)
+• 🟠 Oranje = Matig (2 punten)
+• 🔴 Rood = Slecht (1 punt)
+• 🟣 Donkerrood = Zeer slecht (0 punten)
+
+*Daily Score:*
+Je daily score wordt berekend op basis van je antwoorden (max 100).
+Sommige vragen tellen niet mee voor de score (zoals marktanalyse vragen).
+
+*Tips:*
+• Wees eerlijk in je antwoorden
+• Gebruik voice notes voor uitgebreide reflecties
+• Screenshot belangrijke trades
+• Review je progress regelmatig
+
+_Voor support: @YourSupportUsername_`;
+
+  await sendMessage(chatId, helpText);
+}
+
+// Handle text responses
+async function handleTextResponse(chatId, text) {
+  const session = sessionManager.get(chatId);
   
+  if (!session) {
+    await sendMessage(chatId, 
+      "⏰ Je sessie is verlopen of ik weet niet op welke vraag je antwoordt.\n\n" +
+      "Gebruik /menu om een nieuwe vraag te kiezen."
+    );
+    return;
+  }
+  
+  await sendTypingAction(chatId);
+  
+  // Save to Notion
+  const data = {
+    question: session.question,
+    answer: text,
+    category: session.category,
+    time_of_day: new Date().getHours() < 12 ? 'Morning' : 'Evening',
+    response_type: session.questionType || 'Text',
+    question_options: session.questionOptions || []
+  };
+  
+  const result = await saveToNotion(data);
+  
+  if (result.success) {
+    const responseData = result.data.data;
+    await sendMessage(chatId, 
+      `✅ *Opgeslagen!*\n\n` +
+      `🎨 Kleur: ${responseData.color_assigned}\n` +
+      `📊 Daily Score: ${responseData.daily_score}/100\n` +
+      `📈 Vragen vandaag: ${responseData.score_details.total_answers}\n\n` +
+      `_Gebruik /menu voor de volgende vraag_`
+    );
+  } else {
+    await sendMessage(chatId, 
+      "❌ Er ging iets mis bij het opslaan.\n" +
+      `Error: ${result.error}\n\n` +
+      "_Probeer het later opnieuw._"
+    );
+  }
+  
+  // Clear session
   sessionManager.delete(chatId);
 }
+
+// Handle media uploads
+async function handleMedia(chatId, message) {
+  await sendTypingAction(chatId);
+  
+  let mediaType, fileId, description, fileSize;
+  
+  if (message.photo) {
+    mediaType = 'Photo';
+    fileId = message.photo[message.photo.length - 1].file_id;
+    description = message.caption || 'Trading screenshot';
+    fileSize = message.photo[message.photo.length - 1].file_size;
+  } else if (message.voice) {
+    mediaType = 'Voice Note';
+    fileId = message.voice.file_id;
+    description = `Voice note (${message.voice.duration}s)`;
+    fileSize = message.voice.file_size;
+  } else if (message.video_note) {
+    mediaType = 'Video Note';
+    fileId = message.video_note.file_id;
+    description = `Video note (${message.video_note.duration}s)`;
+    fileSize = message.video_note.file_size;
+  } else if (message.document) {
+    mediaType = 'Document';
+    fileId = message.document.file_id;
+    description = message.document.file_name || 'Document';
+    fileSize = message.document.file_size;
+  }
+  
+  try {
+    const fileInfo = await getFileInfo(fileId);
+    const fileUrl = `https://api.telegram.org/file/bot${TELEGRAM_TOKEN}/${fileInfo.result.file_path}`;
+    
+    const data = {
+      question: `${mediaType} Upload`,
+      answer: description,
+      category: 'Media',
+      time_of_day: new Date().getHours() < 12 ? 'Morning' : 'Evening',
+      response_type: 'media',
+      media_type: mediaType,
+      media_url: fileUrl,
+      media_file_size: fileSize,
+      media_description: description
+    };
+    
+    const result = await saveToNotion(data);
+    
+    if (result.success) {
+      await sendMessage(chatId, 
+        `✅ *${mediaType} Opgeslagen!*\n\n` +
+        `📊 Daily Score: ${result.data.data.daily_score}/100\n` +
+        `📝 Beschrijving: ${description}\n\n` +
+        `_Je media is veilig opgeslagen in Notion_`
+      );
+    } else {
+      throw new Error(result.error);
+    }
+  } catch (error) {
+    console.error('Error handling media:', error);
+    await sendMessage(chatId, 
+      `❌ Kon ${mediaType.toLowerCase()} niet opslaan.\n` +
+      `Error: ${error.message}`
+    );
+  }
+}
+
+// Handle callback queries
+async function handleCallbackQuery(callbackQuery) {
+  const chatId = callbackQuery.message.chat.id;
+  const messageId = callbackQuery.message.message_id;
+  const data = callbackQuery.data;
+  
+  // Answer callback to remove loading state
+  await fetch(`https://api.telegram.org/bot${TELEGRAM_TOKEN}/answerCallbackQuery`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ callback_query_id: callbackQuery.id })
+  });
+  
+  // Handle different callback types
+  if (data.startsWith('cat_')) {
+    const category = data.replace('cat_', '');
+    await askQuestion(chatId, category);
+    
+  } else if (data.startsWith('answer_')) {
+    await handleAnswerCallback(chatId, messageId, data);
+    
+  } else if (data === 'memo_seen') {
+    await handleMemoSeen(chatId, messageId);
+    
+  } else if (data === 'skip_question') {
+    await handleSkipQuestion(chatId, messageId);
+    
+  } else if (data === 'show_progress') {
+    await showProgress(chatId);
+    
+  } else if (data === 'reset_progress') {
+    await confirmReset(chatId);
+    
+  } else if (data === 'confirm_reset') {
+    progressTracker.resetAll(chatId);
+    await editMessage(chatId, messageId, "✅ *Progress gereset!*\
