@@ -383,13 +383,23 @@ async function askQuestion(chatId, category) {
 async function saveToNotion(data, retries = 3) {
   for (let i = 0; i < retries; i++) {
     try {
-      const response = await fetch(`${API_URL}/api/trading-journal-v8`, {
+      // CHANGE THIS TO YOUR ACTUAL API VERSION
+      const apiEndpoint = `${API_URL}/api/trading-journal-v7`; // or v8
+      console.log('Saving to:', apiEndpoint);
+      
+      const response = await fetch(apiEndpoint, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify(data)
       });
+
+      // Check if response is JSON
+      const contentType = response.headers.get("content-type");
+      if (!contentType || !contentType.includes("application/json")) {
+        throw new Error(`API returned non-JSON response. Status: ${response.status}`);
+      }
 
       const result = await response.json();
       
@@ -516,7 +526,7 @@ _"Today A King..."_ 👑
 _"Less is more. Be a lion."_ 🦁`;
 
   await sendMessage(chatId, welcomeText);
-  setTimeout(() => sendMenu(chatId), 1000);
+  // Removed setTimeout that was causing double menu
 }
 
 // Send menu
@@ -540,25 +550,56 @@ async function sendMenu(chatId) {
 async function testAPI(chatId) {
   await sendTypingAction(chatId);
   
-  const testData = {
-    question: 'API Test',
-    answer: 'Test succesvol',
-    category: 'Test',
-    time_of_day: 'Test',
-    response_type: 'Text'
-  };
-  
-  const result = await saveToNotion(testData);
-  
-  if (result.success) {
-    await sendMessage(chatId, 
-      "✅ *API Test Succesvol!*\n\n" +
-      "_Alles werkt!_"
-    );
-  } else {
+  try {
+    // First check if API endpoint exists
+    const checkUrl = `${API_URL}/api/trading-journal-v8`;
+    console.log('Testing API at:', checkUrl);
+    
+    const testData = {
+      question: 'API Test - Bot Check',
+      answer: 'Test succesvol',
+      category: 'Test',
+      time_of_day: new Date().getHours() < 12 ? 'Morning' : 'Evening',
+      response_type: 'Text',
+      question_options: []
+    };
+    
+    const response = await fetch(checkUrl, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(testData)
+    });
+    
+    // Check if response is JSON
+    const contentType = response.headers.get("content-type");
+    if (!contentType || !contentType.includes("application/json")) {
+      throw new Error(`API returned HTML instead of JSON. Status: ${response.status}`);
+    }
+    
+    const result = await response.json();
+    
+    if (response.ok && result.success) {
+      await sendMessage(chatId, 
+        "✅ *API Test Succesvol!*\n\n" +
+        `📊 Daily Score: ${result.data?.daily_score || 'N/A'}\n` +
+        `🎨 Kleur: ${result.data?.color_assigned || 'N/A'}\n\n` +
+        "_Alles werkt perfect!_"
+      );
+    } else {
+      throw new Error(result.error || 'API returned error');
+    }
+  } catch (error) {
+    console.error('Test API error:', error);
     await sendMessage(chatId, 
       "❌ *API Test Gefaald*\n\n" +
-      `Error: ${result.error}`
+      `Error: ${error.message}\n\n` +
+      "_Mogelijke oorzaken:_\n" +
+      "• API endpoint bestaat niet\n" +
+      "• Verkeerde API versie (v7 vs v8)\n" +
+      "• Vercel deployment issue\n\n" +
+      "_Check je API URL en versie!_"
     );
   }
 }
