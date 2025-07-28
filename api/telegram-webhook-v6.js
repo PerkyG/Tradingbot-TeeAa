@@ -552,7 +552,7 @@ async function testAPI(chatId) {
   
   try {
     // First check if API endpoint exists
-    const checkUrl = `${API_URL}/api/trading-journal-v8`;
+    const checkUrl = `${API_URL}/api/trading-journal-v6`;
     console.log('Testing API at:', checkUrl);
     
     const testData = {
