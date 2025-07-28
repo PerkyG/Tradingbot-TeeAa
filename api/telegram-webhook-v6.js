@@ -547,12 +547,12 @@ async function sendMenu(chatId) {
 }
 
 // Test API
+// Test API
 async function testAPI(chatId) {
   await sendTypingAction(chatId);
   
   try {
-    // First check if API endpoint exists
-    const checkUrl = `${API_URL}/api/trading-journal-v6`;
+    const checkUrl = `${API_URL}/api/trading-journal-v7`; // Dit moet v7 zijn nu
     console.log('Testing API at:', checkUrl);
     
     const testData = {
@@ -572,38 +572,41 @@ async function testAPI(chatId) {
       body: JSON.stringify(testData)
     });
     
-    // Check if response is JSON
-    const contentType = response.headers.get("content-type");
-    if (!contentType || !contentType.includes("application/json")) {
-      throw new Error(`API returned HTML instead of JSON. Status: ${response.status}`);
-    }
+    // Debug: log response details
+    console.log('Response status:', response.status);
+    console.log('Response headers:', response.headers);
     
-    const result = await response.json();
+    const responseText = await response.text();
+    console.log('Response text:', responseText);
+    
+    // Try to parse as JSON
+    let result;
+    try {
+      result = JSON.parse(responseText);
+    } catch (e) {
+      throw new Error(`Invalid JSON response: ${responseText.substring(0, 100)}...`);
+    }
     
     if (response.ok && result.success) {
       await sendMessage(chatId, 
         "✅ *API Test Succesvol!*\n\n" +
         `📊 Daily Score: ${result.data?.daily_score || 'N/A'}\n` +
-        `🎨 Kleur: ${result.data?.color_assigned || 'N/A'}\n\n` +
+        `🎨 Kleur: ${result.data?.color_assigned || 'N/A'}\n` +
+        `📝 Notion ID: ${result.data?.notion_id || 'N/A'}\n\n` +
         "_Alles werkt perfect!_"
       );
     } else {
-      throw new Error(result.error || 'API returned error');
+      throw new Error(result.error || `API error: ${JSON.stringify(result)}`);
     }
   } catch (error) {
     console.error('Test API error:', error);
     await sendMessage(chatId, 
       "❌ *API Test Gefaald*\n\n" +
       `Error: ${error.message}\n\n` +
-      "_Mogelijke oorzaken:_\n" +
-      "• API endpoint bestaat niet\n" +
-      "• Verkeerde API versie (v7 vs v8)\n" +
-      "• Vercel deployment issue\n\n" +
-      "_Check je API URL en versie!_"
+      "_Check Vercel logs voor details_"
     );
   }
 }
-
 // Show progress
 async function showProgress(chatId) {
   const progress = progressTracker.getProgress(chatId);
