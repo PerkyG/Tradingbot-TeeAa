@@ -384,7 +384,7 @@ async function saveToNotion(data, retries = 3) {
   for (let i = 0; i < retries; i++) {
     try {
       // CHANGE THIS TO YOUR ACTUAL API VERSION
-      const apiEndpoint = `${API_URL}/api/trading-journal-v7`; // or v8
+      const apiEndpoint = `${API_URL}/api/trading-journal-v6`; // or v8
       console.log('Saving to:', apiEndpoint);
       
       const response = await fetch(apiEndpoint, {
