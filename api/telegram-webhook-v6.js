@@ -469,18 +469,20 @@ function createCategoryKeyboard(filter = null) {
   // Maak rows van 2 buttons
   for (let i = 0; i < categories.length; i += 2) {
     const row = [];
+    // Eerste button
     const cat1 = categories[i];
-    const meta1 = CATEGORY_META[cat1] || { icon: '❓', description: '' }; // Fallback for safety
+    const meta1 = CATEGORY_META[cat1] || { icon: '❓', description: '' };
     row.push({
-        text: meta2.icon + ' ' + cat2.charAt(0).toUpperCase() + cat2.slice(1),
-        callback_ 'cat_' + cat2
-      });  
+      text: meta1.icon + ' ' + cat1.charAt(0).toUpperCase() + cat1.slice(1),
+      callback_ 'cat_' + cat1
+    });
+    // Tweede button (indien aanwezig)
     if (i + 1 < categories.length) {
       const cat2 = categories[i + 1];
       const meta2 = CATEGORY_META[cat2] || { icon: '❓', description: '' };
       row.push({
         text: meta2.icon + ' ' + cat2.charAt(0).toUpperCase() + cat2.slice(1),
-        callback_ 'cat_' + cat2  // Fixed: correct syntax for callback_data
+        callback_ 'cat_' + cat2
       });
     }
     keyboard.push(row);
@@ -490,10 +492,8 @@ function createCategoryKeyboard(filter = null) {
     { text: "📊 Progress", callback_ "show_progress" },
     { text: "🔄 Reset", callback_ "reset_progress" }
   ]);
-  
   return { inline_keyboard: keyboard };
 }
-
 
 // Ask question with enhanced UI
 async function askQuestion(chatId, category) {
