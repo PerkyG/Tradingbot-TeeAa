@@ -469,14 +469,12 @@ function createCategoryKeyboard(filter = null) {
   // Maak rows van 2 buttons
   for (let i = 0; i < categories.length; i += 2) {
     const row = [];
-    
     const cat1 = categories[i];
     const meta1 = CATEGORY_META[cat1] || { icon: '❓', description: '' }; // Fallback for safety
     row.push({
-      text: meta1.icon + ' ' + cat1.charAt(0).toUpperCase() + cat1.slice(1),
-      callback_ 'cat_' + cat1  // Fixed: correct syntax for callback_data
-    });
-    
+        text: meta2.icon + ' ' + cat2.charAt(0).toUpperCase() + cat2.slice(1),
+        callback_ 'cat_' + cat2
+      });  
     if (i + 1 < categories.length) {
       const cat2 = categories[i + 1];
       const meta2 = CATEGORY_META[cat2] || { icon: '❓', description: '' };
@@ -485,10 +483,8 @@ function createCategoryKeyboard(filter = null) {
         callback_ 'cat_' + cat2  // Fixed: correct syntax for callback_data
       });
     }
-    
     keyboard.push(row);
   }
-  
   // Voeg extra opties toe
   keyboard.push([
     { text: "📊 Progress", callback_ "show_progress" },
