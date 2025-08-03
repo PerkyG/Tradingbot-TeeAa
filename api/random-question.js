@@ -58,7 +58,7 @@ const QUESTION_CATEGORIES = {
     { question: "Trades memo: Kwaliteit > kwantiteit. Denk aan less = more", type: "memo", excludeFromScoring: true },
     { question: "Heb je wins/losses geanalyseerd? Photo van trades en korte reflectie?", type: "multiple_choice", options: ["Ja (5 pts)", "Nee (1 pt)"], excludeFromScoring: false },
     { question: "Volgende trade plan? Nieuwe high timeframe ideeen opgedaan of herinnerd? Deel idee.", type: "open", excludeFromScoring: false }
-  ],
+  ], //hier gebleven met checken vragen
   reflectie: [
     { question: "Was je geduldig (leeuw) of impulsief? Deel een chart-screenshot.", type: "multiple_choice", options: ["Volledig geduldig (5 pts)", "Meestal (4 pts)", "Mix (3 pts)", "Vaak impulsief (2 pts)", "Altijd (1 pt)", "Ander"], excludeFromScoring: false },
     { question: "Wat ging goed vandaag? Voice reflectie.", type: "open", excludeFromScoring: false },
