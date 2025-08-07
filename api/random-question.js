@@ -8,14 +8,14 @@ const QUESTION_CATEGORIES = {
     { question: "Herinner je een succesvol moment, waar kijk je positief op terug?; hoe motiveert dat je? Text of voice.", type: "open", excludeFromScoring: false },
     { question: "Is je motivatie intrinsiek of extrinsiek? Leg uit met een voorbeeld.", type: "multiple_choice", options: ["Intrinsiek (5 pts)", "Extrinsiek (3 pts)", "Mix (4 pts)", "Ander"], excludeFromScoring: false },
     { question: "Wat zou je motivatie boosten? Upload een idee-foto of text.", type: "open", excludeFromScoring: false },
-    { question: "Voel je passie en gedrevenheid? Kies en voeg eventueel voicenote toe ", type: "multiple_choice", options: ["Ja, sterk (5 pts)", "Matig (3 pts)", "Nee (1 pt)"], excludeFromScoring: false },
+    { question: "Voel je enthousiasme en gedrevenheid? Kies en voeg eventueel voicenote toe ", type: "multiple_choice", options: ["Ja, sterk (5 pts)", "Matig (3 pts)", "Nee (1 pt)"], excludeFromScoring: false },
     { question: "Memo: Blijf gemotiveerd! Lees een blog of kijk een oude show of twitterthread", type: "memo", excludeFromScoring: true }
   ],
   doelen: [
     { question: "Wat is je hoofddoel vandaag? Denk aan de priolijst en wees specifiek, deel een voice note voor extra bewustzijn.", type: "open", excludeFromScoring: false },
     { question: "Heb je je doelen opgeschreven? Upload een foto van je notitie.", type: "multiple_choice", options: ["Ja, volledig (5 pts)", "Gedeeltelijk (3 pts)", "Nee (1 pt)", "Ander"], excludeFromScoring: false },
     { question: "Zijn je doelen realistisch voor de tijd en soort dag die je hebt? Check en leg uit.", type: "multiple_choice", options: ["Ja (5 pts)", "Gedeeltelijk (3 pts)", "Nee (1 pt)"], excludeFromScoring: false },
-    { question: "Hoe meet je vooruitgang? Journal en Log!", type: "open", excludeFromScoring: false },
+    { question: "Hoe meet je vooruitgang? Journal en (discord) Log!", type: "open", excludeFromScoring: false },
     { question: "Passen je doelen van de dag bij je lange-termijn visie? Foto van plan?", type: "multiple_choice", options: ["Ja (5 pts)", "Nee (2 pts)", "Ander"], excludeFromScoring: false },
     { question: "Wat als je het doel mist vandaag? Bedenk hoe je erop moet reageren", type: "open", excludeFromScoring: false },
     { question: "Memo: Stel dagelijkse doelen door je bewust te zijn het soort dag het voor je is", type: "memo", excludeFromScoring: true }
@@ -58,46 +58,46 @@ const QUESTION_CATEGORIES = {
     { question: "Trades memo: Kwaliteit > kwantiteit. Denk aan less = more", type: "memo", excludeFromScoring: true },
     { question: "Heb je wins/losses geanalyseerd? Photo van trades en korte reflectie?", type: "multiple_choice", options: ["Ja (5 pts)", "Nee (1 pt)"], excludeFromScoring: false },
     { question: "Volgende trade plan? Nieuwe high timeframe ideeen opgedaan of herinnerd? Deel idee.", type: "open", excludeFromScoring: false }
-  ], //hier gebleven met checken vragen
+  ],
   reflectie: [
     { question: "Was je geduldig (leeuw) of impulsief? Deel een chart-screenshot.", type: "multiple_choice", options: ["Volledig geduldig (5 pts)", "Meestal (4 pts)", "Mix (3 pts)", "Vaak impulsief (2 pts)", "Altijd (1 pt)", "Ander"], excludeFromScoring: false },
     { question: "Wat ging goed vandaag? Voice reflectie.", type: "open", excludeFromScoring: false },
     { question: "Wat kan beter? Upload notitie.", type: "open", excludeFromScoring: false },
-    { question: "Emotionele reflectie: Hoe voelde het? Schaal.", type: "multiple_choice", options: ["Positief (5 pts)", "Neutraal (3 pts)", "Negatief (1 pt)"], excludeFromScoring: false },
-    { question: "Reflectie memo: Leer van fouten.", type: "memo", excludeFromScoring: true },
-    { question: "Heb je je doelen gehaald? Voice uitleg.", type: "multiple_choice", options: ["Ja (5 pts)", "Nee (1 pt)"], excludeFromScoring: false },
-    { question: "Dagelijkse winst? Deel metric photo.", type: "open", excludeFromScoring: false },
+    { question: "Emotionele reflectie: wanneer en wat?.", type: "multiple_choice", options: ["Positief (5 pts)", "Neutraal (3 pts)", "Negatief (1 pt)"], excludeFromScoring: false },
+    { question: "Reflectie memo: Leer van fouten. Herhaal ze niet", type: "memo", excludeFromScoring: true },
+    { question: "Heb je je doelen gehaald?.", type: "multiple_choice", options: ["Ja (5 pts)", "Nee (1 pt)"], excludeFromScoring: false },
+    { question: "Dagelijkse winst? dankbaar?", type: "open", excludeFromScoring: false },
     { question: "Morgen beter: Wat pas je aan?", type: "open", excludeFromScoring: false }
   ],
   leren: [
     { question: "Wat heb je vandaag geleerd? Spreek het in via voice note.", type: "open", excludeFromScoring: false },
-    { question: "Nieuwe strategie getest? Upload voorbeeld.", type: "multiple_choice", options: ["Ja (5 pts)", "Nee (1 pt)", "Gedeeltelijk (3 pts)"], excludeFromScoring: false },
+    { question: "Nieuwe inzicht? 2b 2de x raak? Upload voorbeeld.", type: "multiple_choice", options: ["Ja (5 pts)", "Nee (1 pt)", "Gedeeltelijk (3 pts)"], excludeFromScoring: false },
     { question: "Boek/artikel gelezen? Deel insight.", type: "open", excludeFromScoring: false },
-    { question: "Leren memo: Blijf studeren.", type: "memo", excludeFromScoring: true },
+    { question: "Leren memo: Blijf naar signal ipv noise luisteren.", type: "memo", excludeFromScoring: true },
     { question: "Fout geanalyseerd? Voice les.", type: "multiple_choice", options: ["Ja (5 pts)", "Nee (1 pt)"], excludeFromScoring: false },
-    { question: "Mentor advies gevolgd? Leg uit.", type: "open", excludeFromScoring: false },
-    { question: "Volgende leerdoel? Plan photo.", type: "open", excludeFromScoring: false }
+    { question: "Memo's gevolgd? Leg uit. of zoek ze in notion op", type: "open", excludeFromScoring: false },
+    { question: "Volgende leerdoel?.", type: "open", excludeFromScoring: false }
   ],
   gezondheid: [
-    { question: "Heb je gezond gegeten en bewogen? Foto van je maaltijd.", type: "multiple_choice", options: ["Ja, volledig (5 pts)", "Gedeeltelijk (3 pts)", "Nee (1 pt)"], excludeFromScoring: false },
-    { question: "Slaapkwaliteit? Schaal met voice.", type: "multiple_choice", options: ["Uitstekend (5 pts)", "Gemiddeld (3 pts)", "Slecht (1 pt)"], excludeFromScoring: false },
+    { question: "Heb je gezond gegeten en bewogen?", type: "multiple_choice", options: ["Ja, volledig (5 pts)", "Gedeeltelijk (3 pts)", "Nee (1 pt)"], excludeFromScoring: false },
+    { question: "Slaapkwaliteit?", type: "multiple_choice", options: ["Uitstekend (5 pts)", "Gemiddeld (3 pts)", "Slecht (1 pt)"], excludeFromScoring: false },
     { question: "Hydratatie ok? Dagelijkse check.", type: "open", excludeFromScoring: false },
     { question: "Gezondheid memo: Lichaam eerst.", type: "memo", excludeFromScoring: true },
-    { question: "Stress level? Deel via photo.", type: "multiple_choice", options: ["Laag (5 pts)", "Hoog (1 pt)"], excludeFromScoring: false },
-    { question: "Beweging vandaag? Upload bewijs.", type: "open", excludeFromScoring: false },
-    { question: "Mentale gezondheid: Hoe voel je je?", type: "open", excludeFromScoring: false }
+    { question: "Stress level?.", type: "multiple_choice", options: ["Laag (5 pts)", "Hoog (1 pt)"], excludeFromScoring: false },
+    { question: "Beweging vandaag?", type: "open", excludeFromScoring: false },
+    { question: "Mentale vs lichaamxonnectie gezondheid: Hoe voel je je?", type: "open", excludeFromScoring: false }
   ],
   relaties: [
-    { question: "Heb je tijd gemaakt voor familie? Deel een moment via voice.", type: "open", excludeFromScoring: false },
-    { question: "Communicatie met Thea? Positief?", type: "multiple_choice", options: ["Ja (5 pts)", "Nee (1 pt)", "Gemiddeld (3 pts)"], excludeFromScoring: false },
+    { question: "Heb je tijd gemaakt voor familie? Deel een moment.", type: "open", excludeFromScoring: false },
+    { question: "ma cnnx?", type: "multiple_choice", options: ["Ja (5 pts)", "Nee (1 pt)", "Gemiddeld (3 pts)"], excludeFromScoring: false },
     { question: "Relaties memo: Koester ze.", type: "memo", excludeFromScoring: true },
-    { question: "Vrienden contact? Deel insight.", type: "open", excludeFromScoring: false },
-    { question: "Balans werk/relaties? Schaal.", type: "multiple_choice", options: ["Goed (5 pts)", "Slecht (1 pt)"], excludeFromScoring: false },
-    { question: "Dankbaarheid voor relaties? Voice note.", type: "open", excludeFromScoring: false }
+    { question: "Vrienden contact?.", type: "open", excludeFromScoring: false },
+    { question: "Balans werk/relaties?", type: "multiple_choice", options: ["Goed (5 pts)", "Slecht (1 pt)"], excludeFromScoring: false },
+    { question: "Dankbaarheid voor relaties? .", type: "open", excludeFromScoring: false }
   ],
   avond: [
-    { question: "Hoe was je dag overall? Reflecteer met een voice note.", type: "multiple_choice", options: ["Uitstekend (5 pts)", "Goed (4 pts)", "Gemiddeld (3 pts)", "Slecht (2 pts)", "Zeer slecht (1 pt)"], excludeFromScoring: false },
-    { question: "Avond routine gedaan? Upload photo.", type: "open", excludeFromScoring: false },
+    { question: "Hoe was je dag overall?.", type: "multiple_choice", options: ["Uitstekend (5 pts)", "Goed (4 pts)", "Gemiddeld (3 pts)", "Slecht (2 pts)", "Zeer slecht (1 pt)"], excludeFromScoring: false },
+    { question: "Avond routine gedaan?.", type: "open", excludeFromScoring: false },
     { question: "Morgen plan? Deel via voice.", type: "multiple_choice", options: ["Klaar (5 pts)", "Nee (1 pt)"], excludeFromScoring: false },
     { question: "Avond memo: Rust uit.", type: "memo", excludeFromScoring: true },
     { question: "Dankbaar voor vandaag? Leg uit.", type: "open", excludeFromScoring: false },
@@ -105,55 +105,55 @@ const QUESTION_CATEGORIES = {
     { question: "Emotionele afsluiting? Voice reflectie.", type: "open", excludeFromScoring: false }
   ],
   memo: [
-    { question: "Memo: Vergeet niet te rusten. Voice note als reminder?", type: "memo", excludeFromScoring: true },
-    { question: "Memo: Drink water. Photo reminder?", type: "memo", excludeFromScoring: true },
+    { question: "Memo: Vergeet niet te rusten/balans", type: "memo", excludeFromScoring: true },
+    { question: "Memo: Drink water", type: "memo", excludeFromScoring: true },
     { question: "Memo: Check doelen dagelijks.", type: "memo", excludeFromScoring: true },
-    { question: "Memo: Blijf positief. Voice?", type: "memo", excludeFromScoring: true },
-    { question: "Memo: Leer van trades.", type: "memo", excludeFromScoring: true }
+    { question: "Memo: Blijf positief", type: "memo", excludeFromScoring: true },
+    { question: "Memo: Leer van fouten", type: "memo", excludeFromScoring: true }
   ],
   marktanalyse: [
-    { question: "Hoe staat de markt vandaag? Deel een screenshot.", type: "open", excludeFromScoring: true },
-    { question: "Trend analyse: Bullish of bearish? Voice uitleg.", type: "multiple_choice", options: ["Bullish (5 pts)", "Bearish (3 pts)", "Neutraal (4 pts)", "Ander"], excludeFromScoring: false },
-    { question: "Key indicators gecheckt? Upload grafiek.", type: "open", excludeFromScoring: false },
-    { question: "Volatiliteit niveau? Schaal met voice.", type: "multiple_choice", options: ["Hoog (3 pts)", "Laag (5 pts)", "Middel (4 pts)"], excludeFromScoring: false },
-    { question: "Nieuws impact? Deel insight.", type: "open", excludeFromScoring: false },
-    { question: "Memo: Analyseer markt. Photo?", type: "memo", excludeFromScoring: true }
+    { question: "Hoe staat de markt vandaag? typeer markt met #.", type: "open", excludeFromScoring: true },
+    { question: "Trend analyse: Bullish of bearish? typeer markt met #.", type: "multiple_choice", options: ["Bullish (5 pts)", "Bearish (3 pts)", "Neutraal (4 pts)", "Ander"], excludeFromScoring: false },
+    { question: "start here gechecked?.typeer markt met #.", type: "open", excludeFromScoring: false },
+    { question: "Volatiliteit? BoB?.typeer markt met #.", type: "multiple_choice", options: ["Hoog (3 pts)", "Laag (5 pts)", "Middel (4 pts)"], excludeFromScoring: false },
+    { question: "Nieuws impact? typeer markt met #..", type: "open", excludeFromScoring: false },
+    { question: "Memo: Analyseer markt. #?", type: "memo", excludeFromScoring: true }
   ],
   strategie: [
-    { question: "Wat is je trading strategie? Upload plan foto.", type: "open", excludeFromScoring: false },
-    { question: "Volg je een specifieke methode? Kies en leg uit.", type: "multiple_choice", options: ["Scalping (4 pts)", "Day trading (5 pts)", "Swing (3 pts)", "Ander"], excludeFromScoring: false },
-    { question: "Strategie aanpassing nodig? Voice note.", type: "open", excludeFromScoring: false },
-    { question: "Entry/exit rules? Deel voorbeeld.", type: "multiple_choice", options: ["Duidelijk (5 pts)", "Vage (2 pts)"], excludeFromScoring: false },
-    { question: "Backtest resultaten? Upload data.", type: "open", excludeFromScoring: false },
-    { question: "Memo: Stick to strategy. Voice?", type: "memo", excludeFromScoring: true }
+    { question: "Wat is je managementplan?.", type: "open", excludeFromScoring: false },
+    { question: "Volg je een specifieke methode?.", type: "multiple_choice", options: ["Scalping (4 pts)", "Day trading (5 pts)", "Swing (3 pts)", "Ander"], excludeFromScoring: false },
+    { question: "Strategie aanpassing nodig?.", type: "open", excludeFromScoring: false },
+    { question: "Entry/exit rules? mgt.", type: "multiple_choice", options: ["Duidelijk (5 pts)", "Vage (2 pts)"], excludeFromScoring: false },
+    { question: "replay of papertrade gedaan? Upload data.", type: "open", excludeFromScoring: false },
+    { question: "Memo: Stick to the plan.", type: "memo", excludeFromScoring: true }
   ],
   risico: [
-    { question: "Risico assessment: Hoog of laag? Voice note.", type: "multiple_choice", options: ["Laag (5 pts)", "Hoog (1 pt)", "Middel (3 pts)"], excludeFromScoring: false },
-    { question: "Stop-loss gezet? Deel setup photo.", type: "open", excludeFromScoring: false },
-    { question: "Risico-reward ratio? Bereken en leg uit.", type: "multiple_choice", options: ["Goed (5 pts)", "Slecht (1 pt)"], excludeFromScoring: false },
-    { question: "Potentiële risks? List via voice.", type: "open", excludeFromScoring: false },
-    { question: "Memo: Manage risico. Photo?", type: "memo", excludeFromScoring: true }
+    { question: "Risico assessment: Hoog of laag?.", type: "multiple_choice", options: ["Laag (5 pts)", "Hoog (1 pt)", "Middel (3 pts)"], excludeFromScoring: false },
+    { question: "Stop-loss gezet?", type: "open", excludeFromScoring: false },
+    { question: "Risico-reward ratio?", type: "multiple_choice", options: ["Goed (5 pts)", "Slecht (1 pt)"], excludeFromScoring: false },
+    { question: "Potentiële risks?.", type: "open", excludeFromScoring: false },
+    { question: "Memo: Manage risico.", type: "memo", excludeFromScoring: true }
   ],
   performance: [
-    { question: "Hoe presteer je? Deel metrics screenshot.", type: "open", excludeFromScoring: false },
-    { question: "Win rate vandaag? Schaal met voice.", type: "multiple_choice", options: ["Hoog (5 pts)", "Laag (1 pt)"], excludeFromScoring: false },
+    { question: "Hoe presteer je? en tov de crowd?", type: "open", excludeFromScoring: false },
+    { question: "Hitrate vandaag? Schaal met voice.", type: "multiple_choice", options: ["Hoog (5 pts)", "Laag (1 pt)"], excludeFromScoring: false },
     { question: "Performance review? Insights.", type: "open", excludeFromScoring: false },
-    { question: "Vergelijking met gisteren? Photo.", type: "multiple_choice", options: ["Beter (5 pts)", "Slechter (1 pt)"], excludeFromScoring: false },
-    { question: "Memo: Track performance. Voice?", type: "memo", excludeFromScoring: true }
+    { question: "Vergelijking met gisteren?.", type: "multiple_choice", options: ["Beter (5 pts)", "Slechter (1 pt)"], excludeFromScoring: false },
+    { question: "Memo: Track performance. discord, tradesviz?", type: "memo", excludeFromScoring: true }
   ],
   inzichten: [
-    { question: "Welke inzichten vandaag? Spreek in via voice.", type: "open", excludeFromScoring: false },
+    { question: "Welke inzichten vandaag?.", type: "open", excludeFromScoring: false },
     { question: "Nieuw inzicht over markt? Deel photo.", type: "open", excludeFromScoring: false },
     { question: "Lessen uit trades? Kies.", type: "multiple_choice", options: ["Veel (5 pts)", "Weinig (1 pt)"], excludeFromScoring: false },
     { question: "Inzicht memo: Noteer ze.", type: "memo", excludeFromScoring: true },
-    { question: "Toekomstig inzicht? Voice plan.", type: "open", excludeFromScoring: false }
+    { question: "Toekomstgericht inzicht? Voice plan.", type: "open", excludeFromScoring: false }
   ],
   ontwikkeling: [
-    { question: "Hoe groei je als trader? Reflecteer met photo.", type: "open", excludeFromScoring: false },
+    { question: "Hoe groei je als trader?.", type: "open", excludeFromScoring: false },
     { question: "Nieuwe skills geleerd? Deel via voice.", type: "multiple_choice", options: ["Ja (5 pts)", "Nee (1 pt)"], excludeFromScoring: false },
     { question: "Ontwikkeling doel? Plan upload.", type: "open", excludeFromScoring: false },
     { question: "Progressie check? Schaal.", type: "multiple_choice", options: ["Goed (5 pts)", "Slecht (1 pt)"], excludeFromScoring: false },
-    { question: "Memo: Blijf groeien. Voice?", type: "memo", excludeFromScoring: true }
+    { question: "Memo: Blijf groeien", type: "memo", excludeFromScoring: true }
   ]
 };
 
