@@ -146,7 +146,7 @@ const SCHEDULE = {
 const QUESTION_CATEGORIES = {
   motivatie: [  // 8 vragen
     { question: "Waarom trade je vandaag? Kies je motivatie en deel optioneel een voice note met waarom.", type: "multiple_choice", options: ["Familie onderhouden (5 pts)", "Toekomst opbouwen (5 pts)", "Thea trots maken (4 pts)", "Uit verveling (0 pts)", "Ander (specificeer, 3 pts)"], excludeFromScoring: false },
-    { question: "Wat drijft je het meest: geld, ontwikkeling of iets persoonlijks? Upload een foto van wat je inspireerd.", type: "open", excludeFromScoring: false },
+    { question: "Wat drijft je het meest: geld, ontwikkeling of iets persoonlijks? Upload een foto van wat je inspireert.", type: "open", excludeFromScoring: false },
     { question: "Hoe gemotiveerd voel je je nu? Hoe is je drive vandaag? (1-5 schaal, voice note voor uitleg).", type: "multiple_choice", options: ["5 (Volledig, Groen)", "4 (Hoog)", "3 (Gemiddeld, Geel)", "2 (Laag, Oranje)", "1 (Geen, Rood)"], excludeFromScoring: false },
     { question: "Herinner je een succesvol moment, waar kijk je positief op terug?; hoe motiveert dat je? Text of voice.", type: "open", excludeFromScoring: false },
     { question: "Is je motivatie intrinsiek of extrinsiek? Leg uit met een voorbeeld.", type: "multiple_choice", options: ["Intrinsiek (5 pts)", "Extrinsiek (3 pts)", "Mix (4 pts)", "Ander"], excludeFromScoring: false },
